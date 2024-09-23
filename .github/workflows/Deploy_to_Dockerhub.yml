@@ -19,7 +19,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_API_KEY }}
           
       - name: Build Docker Image
-        run: docker build -t zinx666/actions_generator_dev:latest .
+        run: docker build -t zinx666/actions_generator:latest .
         
       - name: Push Docker Image
-        run: docker push zinx666/actions_generator_dev:latest
+        run: docker push zinx666/actions_generator:latest
