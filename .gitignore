@@ -6,7 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# Ignore sensitive variables
+*.tfvars
+
 .terraform
+
 # Distribution / packaging
 .Python
 build/

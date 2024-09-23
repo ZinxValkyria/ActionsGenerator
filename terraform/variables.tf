@@ -1,24 +1,11 @@
-variable "docker_user" {
-  type    = string
-  default = "secrets.user"
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token"
+  type        = string
+  sensitive   = true  # Mark as sensitive
 }
 
-variable "docker_pass" {
-  type    = string
-  default = "secrets.docker_pass"
-}
-
-variable "vpc_cidr" {
-  type    = string 
-  default = "10.0.0.0/16"
-}
-
-variable "public_cidr" {
-  type    = string
-  default = "10.0.0.0/17"
-}
-
-variable "availability_zone_count" {
-  type    = number
-  default = 1
+variable "cloudflare_zone_id" {
+  description = "Cloudflare Zone ID"
+  type        = string
+  sensitive   = true  # Mark as sensitive
 }

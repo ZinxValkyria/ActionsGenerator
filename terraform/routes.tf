@@ -9,7 +9,7 @@ resource "aws_route_table" "public_rt" {
 }
 
 resource "aws_route_table_association" "rt_asc" {
-  subnet_id      = aws_subnet.public_sub.id
+  subnet_id      = aws_subnet.public_sub1.id
   route_table_id = aws_route_table.public_rt.id
 }
 

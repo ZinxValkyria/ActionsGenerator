@@ -1,5 +1,3 @@
-
-
 # Define the security group for ECS
 resource "aws_security_group" "ecs_sg" {
   vpc_id = aws_vpc.main.id
@@ -13,6 +11,13 @@ resource "aws_security_group" "ecs_sg" {
   }
 
   ingress {
+    from_port   = 5000 # Allow traffic on port 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow traffic on port 5000"
+  }
+  ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -23,7 +28,7 @@ resource "aws_security_group" "ecs_sg" {
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = -1
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow all outbound traffic"
   }
@@ -42,94 +47,120 @@ resource "aws_ecs_cluster" "ecs_cluster" {
   }
 }
 
-# Create IAM Role for ECS EC2 Instances
-resource "aws_iam_role" "ecs_instance_role" {
-  name = "ecsInstanceRole"
+# Create IAM Role for ECS Task Execution
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "ecsTaskExecutionRole"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
     Statement = [
       {
-        Action    = "sts:AssumeRole"
-        Effect    = "Allow"
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
         Principal = {
-          Service = "ec2.amazonaws.com"
+          Service = "ecs-tasks.amazonaws.com"
         }
-      },
+      }
     ]
   })
 }
 
-# Attach the ECS-optimized AMI policy to the role
-resource "aws_iam_role_policy_attachment" "ecs_instance_policy" {
-  role       = aws_iam_role.ecs_instance_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+# Attach the ECS Task Execution Role policy
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Create an ECS Task Definition
+# Create ECS Task Definition for the container
 resource "aws_ecs_task_definition" "ecs_task" {
-  family                   = "my-ecs-task"
-  network_mode             = "bridge"
-  requires_compatibilities = ["EC2"]
-  cpu                      = "256"
-  memory                   = "512"
+  family                   = "actions-generator-task"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256" # 256 CPU units
+  memory                   = "512" # 512 MB memory
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
-  container_definitions = jsonencode([
-    {
-      name      = "web"
-      image     = "zinx666/actions_template:latest"
-      essential = true
-      portMappings = [
-        {
-          containerPort = 3000
-          hostPort      = 3000
-        }
-      ]
-    }
-  ])
+  container_definitions = <<DEFINITION
+[
+  {
+    "name": "actions-generator",
+    "image": "zinx666/actions_generator:latest",
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": 5000
+      }
+    ]
+  }
+]
+DEFINITION
 }
 
-# Launch Configuration for ECS Instances
-resource "aws_launch_configuration" "ecs_instance_lc" {
-  name          = "ecs-instance-lc"
-  image_id      = "ami-0c7217cdde317cfec" # Replace with ECS optimized AMI
-  instance_type = "t2.micro"
-  security_groups = [
-    aws_security_group.ecs_sg.id
+resource "aws_ecs_service" "ecs_service" {
+  name            = "actions-generator-service"
+  cluster         = aws_ecs_cluster.ecs_cluster.id
+  task_definition = aws_ecs_task_definition.ecs_task.id
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = [aws_subnet.public_sub1.id, aws_subnet.public_sub2.id]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = true # Assign public IP for Fargate tasks
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs_target_group.arn
+    container_name   = "actions-generator"
+    container_port   = 5000
+  }
+
+  depends_on = [aws_lb.app_lb] # Ensure the load balancer is created before the ECS service
+}
+
+# Create Target Group with IP target type
+resource "aws_lb_target_group" "ecs_target_group" {
+  name        = "ecs-target-group"
+  port        = 5000
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip" # Change target type to IP
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+}
+
+# Create Load Balancer
+resource "aws_lb" "app_lb" {
+  name               = "app-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ecs_sg.id]
+
+  subnets = [
+    aws_subnet.public_sub1.id,
+    aws_subnet.public_sub2.id
   ]
 
-  iam_instance_profile = aws_iam_instance_profile.ecs_instance_profile.name
+  enable_deletion_protection = false
 
-  lifecycle {
-    create_before_destroy = true
+  tags = {
+    Name = "App Load Balancer"
   }
-
-  user_data = <<-EOF
-              #!/bin/bash
-              echo ECS_CLUSTER=${aws_ecs_cluster.ecs_cluster.name} >> /etc/ecs/ecs.config
-              EOF
 }
 
-# Auto-scaling group for ECS EC2 instances
-resource "aws_autoscaling_group" "ecs_asg" {
-  launch_configuration = aws_launch_configuration.ecs_instance_lc.id
-  min_size             = 1
-  max_size             = 2
-  desired_capacity     = 1
-  vpc_zone_identifier  = [aws_subnet.public_sub.id]
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.app_lb.arn
+  port              = 80
+  protocol          = "HTTP"
 
-  tag {
-    key                 = "Name"
-    value               = "ecs-instance"
-    propagate_at_launch = true
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ecs_target_group.arn
   }
-
-  depends_on = [aws_launch_configuration.ecs_instance_lc]
 }
-
-# Create an IAM Instance Profile for ECS EC2 Instances
-resource "aws_iam_instance_profile" "ecs_instance_profile" {
-  name = "ecsInstanceProfile"
-  role = aws_iam_role.ecs_instance_role.name
-}
-
