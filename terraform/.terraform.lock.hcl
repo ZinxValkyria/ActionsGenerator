@@ -5,6 +5,7 @@ provider "registry.terraform.io/cloudflare/cloudflare" {
   version     = "3.35.0"
   constraints = "~> 3.0"
   hashes = [
+    "h1:Pz5TV7h/BXPJnNtlmUfbirFE9yXozYpXceo01tYlR0Y=",
     "h1:RRUt72l8TuYsqrHSKzM+rUsLXiWRU8CFwbPPX3prurQ=",
     "zh:13aabc00fee823422831bcc870227650cc765fc4c9622074d24d6d62a4ac0e37",
     "zh:1544405f0ea6b388dad7eb25c434427b2682417396da9186e1b33551e6b4adff",
