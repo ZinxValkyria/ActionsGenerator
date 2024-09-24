@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Azure Page{% endblock %}
+
+{% block content %}
+<h1>Github Tasks</h1>
+      <div class="container">
+        <!-- Left Section: Form -->
+        <div class="left-section">
+            <h2>Tasks and Workflows</h2><br>
+
+            <form action="/generate" method="post" onsubmit="return handleTaskChange()">
+                <label for="task">What Task/Action would you like to implement:</label>
+                <select id="task" name="task" required onchange="handleTaskChange()">
+                    <option value="build">Build</option>
+                    <option value="test">Test</option>
+                    <option value="deploy">Deploy to Github Pages</option>
+                    <option value="linting">Linting</option>
+                    <option value="snyk">Snyk</option>
+                    <option value="setup">Setup</option>
+                    <option value="custom" id="custom_action">Custom Workflow</option>
+                </select><br><br>
+
+                <!-- Custom Workflow Section (hidden by default) -->
+                <div id="custom_flow" style="display: none;">
+                    <label for="os">Operating System:</label>
+                    <select id="os" name="os">
+                        <option value="ubuntu">Ubuntu Linux</option>
+                        <option value="windows">Windows</option>
+                        <option value="mac">Mac</option>
+                    </select><br><br>
+
+                    <label for="triggers">Triggers:</label>
+                    <br><input type="checkbox" id="push" name="triggers" value="push"> Push<br>
+                    <input type="checkbox" id="pull_request" name="triggers" value="pull_request"> Pull Request<br>
+                    <input type="checkbox" id="workflow_call" name="triggers" value="workflow_call"> Workflow Call<br>
+                    <input type="checkbox" id="workflow_dispatch" name="triggers" value="workflow_dispatch"> Workflow Dispatch<br>
+                    <br>
+                    <button type="submit" id ="trigger_gen" style="display: block; margin: 0 auto;">Generate Custom Workflow YAML</button>
+
+                </div>
+
+                <!-- Deployment section (hidden by default) -->
+                <div id="deploylist" style="display: none;">
+                    <label for="deploy_task">Where would you like to deploy to:</label>
+                    <select id="deploy_task" name="deploy_task" required>
+                        <option value="aws">AWS</option>
+                        <option value="gcp">Google (GCP)</option>
+                        <option value="azure">Microsoft Azure</option>
+                        <option value="docker">Docker</option>
+                        <option value="gh_pages">GitHub Pages</option>
+                    </select><br><br>
+                    <button type="submit" class="copy" ">Generate YAML</button>
+
+                </div>
+            </form>
+        </div>
+
+        <!-- Middle Section: YAML Script Output -->
+        <div class="middle-section">
+            <h2>Fetched YAML Script</h2>
+            <pre id="scriptOutput"></pre>
+            <button type="submit" class="button" ">Copy</button>
+            <img src="/static/images/gh-logo.png" alt="Github Icon">
+        </div>
+
+        <!-- Right Section: Future Content -->
+         
+        <div class="right-section"> <h2>Additional Configurations</h2>
+            <p>Future content for more settings can go here.</p>
+        </div>
+    </div>
+    
+{% endblock %}
+
