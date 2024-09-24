@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main  # Run CI on pull requests to main
+  workflow_dispatch:  # Manually trigger the workflow from the GitHub UI
 
 jobs:
   test:
