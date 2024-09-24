@@ -1,0 +1,20 @@
+name: Basic deploy
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - id: deploy
+        uses: bitovi/github-actions-docker-to-azure-vm@v1
+        with:
+          AZURE_ARM_CLIENT_ID: ${{ secrets.AZURE_ARM_CLIENT_ID }}
+          AZURE_ARM_CLIENT_SECRET: ${{ secrets.AZURE_ARM_CLIENT_SECRET }}
+          AZURE_ARM_TENANT_ID: ${{ secrets.AZURE_ARM_TENANT_ID }}
+          AZURE_ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_ARM_SUBSCRIPTION_ID }}
+          azure_resource_identifier: 'my-resource-group'
+          AZURE_STORAGE_ACCOUNT: 'mystorageaccount'
+          tf_state_bucket: 'my-state-bucket'
+          stack_destroy: 'false'

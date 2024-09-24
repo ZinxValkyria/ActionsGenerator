@@ -1,0 +1,13 @@
+name: Generated Workflow
+
+on:
+  push: {{ push_trigger }}
+  pull_request: {{ pull_request_trigger }}
+
+jobs:
+  main_job:
+    runs-on: {{ os }}
+    steps:
+{{ checkout_step }}
+{{ predefined_actions }}
+{{ custom_steps }}
