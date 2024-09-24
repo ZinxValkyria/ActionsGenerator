@@ -1,0 +1,59 @@
+name: Terraform CI
+
+on:
+  push:
+    branches:
+      - infrastructure
+      - feature/*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.2  # Specify the version of Terraform you want
+
+      - name: Install tflint
+        run: |
+          wget https://github.com/terraform-linters/tflint/releases/download/v0.46.0/tflint_linux_amd64.zip
+          unzip tflint_linux_amd64.zip
+          sudo mv tflint /usr/local/bin/
+
+      - name: Run tflint
+        run: tflint
+
+      - name: Format Terraform code
+        run: terraform fmt -check
+
+      - name: Validate Terraform code
+        run: terraform validate
+
+  plan:
+   runs-on: ubuntu-latest
+   needs: lint
+
+   steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.2  # Specify the version of Terraform you want
+
+    - name: Terraform Init
+      working-directory: ./terraform  # Set the correct directory if needed
+      run: terraform init
+
+    - name: Terraform Plan
+      working-directory: ./terraform  # Set the correct directory if needed
+      run: terraform plan
