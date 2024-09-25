@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          ref: dev  # Explicitly checkout the dev branch
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -25,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install Flask PyYAML pytest
+          pip install -r requirements.txt
 
       - name: Lint code
         run: |
