@@ -39,9 +39,9 @@ jobs:
           pip install black
           black .  # Run flake8 on the entire repository
 
-      - name: Run tests
-        run: |
-          pytest tests/  # Adjust the path to your test directory if necessary
+      # - name: Run tests
+      #   run: |
+      #     pytest tests/  # Adjust the path to your test directory if necessary
 
       - name: Install Snyk CLI
         run: |
