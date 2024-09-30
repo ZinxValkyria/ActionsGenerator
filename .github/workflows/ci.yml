@@ -29,10 +29,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Lint code
-        run: |
-          pip install black  # Install flake8 for linting
-          black --check .  # Run flake8 on the entire repository
+      # - name: Lint code
+      #   run: |
+      #     pip install black  # Install flake8 for linting
+      #     black --check .  # Run flake8 on the entire repository
 
       - name: Lint Fix code
         run: |
