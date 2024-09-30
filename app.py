@@ -8,7 +8,9 @@ SCRIPTS_DIR = os.path.join(os.getcwd(), 'scripts')
 
 # Ensure that the scripts directory exists
 if not os.path.exists(SCRIPTS_DIR):
-    raise FileNotFoundError(f"The directory {SCRIPTS_DIR} does not exist. Please check your project structure.")
+    raise FileNotFoundError(
+        f"The directory {SCRIPTS_DIR} does not exist. Please check your project structure."
+    )
 
 # Route for the homepage
 @app.route('/')
