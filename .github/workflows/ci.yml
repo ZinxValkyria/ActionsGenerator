@@ -36,6 +36,7 @@ jobs:
 
       - name: Lint Fix code
         run: |
+          pip install black
           black .  # Run flake8 on the entire repository
 
       - name: Run tests
