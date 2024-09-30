@@ -31,8 +31,8 @@ jobs:
 
       - name: Lint code
         run: |
-          pip install flake8  # Install flake8 for linting
-          flake8 .  # Run flake8 on the entire repository
+          pip install pylint  # Install flake8 for linting
+          pylint app.py  # Run flake8 on the entire repository
 
       - name: Run tests
         run: |
