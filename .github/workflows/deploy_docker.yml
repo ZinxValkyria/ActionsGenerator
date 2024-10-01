@@ -31,7 +31,7 @@ jobs:
     # Build and tag Docker image
     - name: Build Docker image
       run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-app:${{ env.IMAGE_TAG }} .
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actiob_generator:${{ env.IMAGE_TAG }} .
 
     # Push Docker image to DockerHub
     - name: Push Docker image
