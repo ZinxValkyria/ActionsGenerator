@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Azure Page{% endblock %}
+
+{% block content %}
+<h1>Custom Workflow</h1>
+      <div class="container">
+        <!-- Left Section: Form -->
+        <div class="left-section">
+            <h2>Create a custom Workflow</h2><br>
+
+                <div id="custom_flow">
+                    <label for="os">Operating System:</label>
+                    <select id="os" name="os">
+                        <option value="ubuntu">Ubuntu Linux</option>
+                        <option value="windows">Windows</option>
+                        <option value="mac">Mac</option>
+                    </select><br><br>
+
+                    <label for="triggers">Triggers:</label>
+                    <br><input type="checkbox" id="push" name="triggers" value="push"> Push<br>
+                    <input type="checkbox" id="pull_request" name="triggers" value="pull_request"> Pull Request<br>
+                    <input type="checkbox" id="workflow_call" name="triggers" value="workflow_call"> Workflow Call<br>
+                    <input type="checkbox" id="workflow_dispatch" name="triggers" value="workflow_dispatch"> Workflow Dispatch<br>
+                    <br>
+                    <button type="submit" id ="trigger_gen" style="display: block; margin: 0 auto;">Generate Custom Workflow YAML</button>
+
+                </div>
+</form>
+</div>
+
+        <!-- Middle Section: YAML Script Output -->
+        <div class="middle-section">
+            <h2>YAML Script</h2>
+            <pre id="scriptOutput"></pre>
+            <button type="submit" class="button">Copy</button>
+            <img src="/static/images/custom.png" alt="AWS Icon"> 
+
+
+        </div>
+
+        <!-- Right Section: Future Content -->
+         
+        <div class="right-section"> <h2>Additional Configurations</h2>
+            <p>Future content for more settings can go here.</p>
+        </div>
+    </div>
+    
+{% endblock %}
