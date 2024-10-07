@@ -1,0 +1,58 @@
+name: Deploy to Google Compute Engine
+
+on:
+  push:
+    branches:
+      - main  # Deploy when code is pushed to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Google Cloud SDK
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: 'latest'
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      # Authenticate Docker to use GCR
+      - name: Authenticate Docker with GCR
+        run: |
+          echo "${{ secrets.GCP_SA_KEY }}" | docker login -u _json_key --password-stdin https://gcr.io
+
+      # Build and tag the Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-app:${{ github.sha }} .
+
+      # Push the Docker image to GCR
+      - name: Push Docker image to GCR
+        run: |
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-app:${{ github.sha }}
+
+      # SSH into the GCE instance and deploy the container
+      - name: SSH into GCE and deploy
+        env:
+          GCE_INSTANCE: ${{ secrets.GCE_INSTANCE_NAME }}
+          GCE_ZONE: ${{ secrets.GCE_ZONE }}
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+          DOCKER_IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-app:${{ github.sha }}
+        run: |
+          # Set up SSH key for access
+          echo "${{ secrets.GCE_SSH_PRIVATE_KEY }}" > gce_ssh_key
+          chmod 600 gce_ssh_key
+
+          # SSH into GCE and pull the latest Docker image
+          ssh -o StrictHostKeyChecking=no -i gce_ssh_key ${{ secrets.GCE_SSH_USERNAME }}@${{ secrets.GCE_INSTANCE_IP }} << EOF
+            docker pull $DOCKER_IMAGE
+            docker stop my-app || true
+            docker rm my-app || true
+            docker run -d --name my-app -p 80:80 $DOCKER_IMAGE
+          EOF

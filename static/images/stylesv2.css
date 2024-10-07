@@ -1,0 +1,22 @@
+.icon-container {
+    display: flex;
+    justify-content: space-around; /* Space out items evenly */
+    align-items: center; /* Center items vertically */
+    padding: 20px 0; /* Optional padding for top and bottom */
+    flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
+}
+
+.icon-item {
+    flex: 1; /* Make items flexible */
+    max-width: 120px; /* Limit max width of each icon */
+    text-align: center; /* Center-align images and text */
+    margin: 0 10px; /* Space out items */
+}
+
+.icon-item img {
+    max-width: 100%; /* Make images responsive */
+    height: auto; /* Maintain aspect ratio */
+}
+.icon-item:hover img {
+    transform: scale(1.2); /* Scale image by 20% */
+}
