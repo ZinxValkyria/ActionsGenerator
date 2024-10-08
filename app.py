@@ -6,9 +6,10 @@ YAML script files from the 'scripts' directory.
 
 import os
 from flask import Flask, render_template, send_from_directory, abort
+from dotenv import load_dotenv
 
 app = Flask(__name__, template_folder="templatesv2")
-
+load_dotenv()
 # Define the directory where local YAML scripts are stored
 SCRIPTS_DIR = os.path.join(os.getcwd(), "scripts")
 
