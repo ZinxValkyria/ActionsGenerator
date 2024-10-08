@@ -3,46 +3,50 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - dev  # Trigger on push to 'main'
+      - dev  # Trigger on push to 'dev'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the repository :)
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # Log in to DockerHub
-    - name: Log in to DockerHub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_API_KEY }}
+      # Create newrelic.ini from secret
+      - name: Create newrelic.ini
+        run: echo "${{ secrets.NEW_RELIC_CONFIG }}" > newrelic.ini
 
-    # Set Docker image tag (using the Git SHA or another strategy)
-    - name: Set Docker image tag
-      id: docker_tag
-      run: |
-        IMAGE_TAG="${GITHUB_SHA::7}"
-        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+      # Log in to DockerHub
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_API_KEY }}
 
-    # Build and tag Docker image
-    - name: Build Docker image
-      run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
+      # Set Docker image tag (using the Git SHA or another strategy)
+      - name: Set Docker image tag
+        id: docker_tag
+        run: |
+          IMAGE_TAG="${GITHUB_SHA::7}"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-    # Push Docker image to DockerHub
-    - name: Push Docker image
-      run: |
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
+      # Build and tag Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
 
-    # Save image tag as an artifact for later use
-    - name: Upload image tag artifact
-      run: echo ${{ env.IMAGE_TAG }} > image_tag.txt
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: image-tag
-        path: image_tag.txt
+      # Push Docker image to DockerHub
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
+
+      # Save image tag as an artifact for later use
+      - name: Upload image tag artifact
+        run: echo ${{ env.IMAGE_TAG }} > image_tag.txt
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: image-tag
+          path: image_tag.txt
