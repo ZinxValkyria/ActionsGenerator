@@ -2,8 +2,7 @@
 import os
 import pytest
 from flask import Flask
-from app import app  # Adjust the import based on your project structure
-
+from..app import app
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
