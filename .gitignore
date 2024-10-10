@@ -5,7 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+*.auto.tfvars
 # Distribution / packaging
 .Python
 build/
@@ -24,7 +24,14 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
+
+
+*.ini
+.env
+origin_cert.pem
+origin_private.pem
+
+
 
 
 # PyInstaller
@@ -155,6 +162,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+.terraform
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore

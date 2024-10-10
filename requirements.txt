@@ -1,0 +1,7 @@
+Flask
+PyYAML
+pytest
+newrelic
+python-dotenv
+
+pytest
