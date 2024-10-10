@@ -6,7 +6,6 @@ on:
       - main
 
 permissions: write-all
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
