@@ -9,7 +9,7 @@ env:
   TF_LOG: INFO
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}  # Add this if using S3 for state
 
 jobs:
   terraform:
@@ -35,7 +35,7 @@ jobs:
 
       - name: Terraform init
         id: init
-        run: terraform init 
+        run: terraform init -backend-config="bucket=${{ env.BUCKET_TF_STATE }}"
 
       - name: Terraform validate
         id: validate
