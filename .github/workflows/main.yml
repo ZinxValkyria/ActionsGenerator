@@ -10,11 +10,15 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}  # Add this if using S3 for state
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+  NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
 
 jobs:
   terraform:
     name: "Terraform Infrastructure Change Management"
     runs-on: ubuntu-latest
+
     defaults:
       run:
         shell: bash
