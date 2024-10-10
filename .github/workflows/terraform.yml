@@ -53,17 +53,14 @@ jobs:
           name: image-tag
           path: image_tag.txt
 
+  apply:
+    name: Terraform Apply
+    needs: [build-and-push]
+    uses: ./.github/workflows/terraform-apply.yml  # Reusing the terraform-apply workflow
+    secrets: inherit
 
-   apply:
-     name: Terraform Apply 
-     uses: ./.github/workflows/terraform-apply.yml
-     needs: [build-and-push]
-     secrets: inherit   
-
-   destroy:
-     name: Terraform Destroy
-     uses: ./.github/workflows/terraform-destroy.yml
-     needs: [apply]
-     secrets: inherit
-
-
+  destroy:
+    name: Terraform Destroy
+    needs: [apply]
+    uses: ./.github/workflows/terraform-destroy.yml  # Reusing the terraform-destroy workflow
+    secrets: inherit
