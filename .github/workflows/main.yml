@@ -22,7 +22,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./terraform
+        working-directory: ./terraform  # Ensure this points to your Terraform config directory
 
     steps:
       - name: Checkout the repository to the runner
@@ -47,21 +47,24 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: terraform plan -no-color -input=false \
-          -var "cloudflare_api_token=${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-          -var "cloudflare_zone_id=${{ secrets.CLOUDFLARE_ZONE_ID }}" \
-          -var "new_relic_license_key=${{ secrets.NEW_RELIC_LICENSE_KEY }}"
+        run: |
+          terraform -chdir=./terraform plan -no-color -input=false \
+            -var "cloudflare_api_token=${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -var "cloudflare_zone_id=${{ secrets.CLOUDFLARE_ZONE_ID }}" \
+            -var "new_relic_license_key=${{ secrets.NEW_RELIC_LICENSE_KEY }}"
 
       - name: Terraform apply
         id: apply
-        run: terraform apply --auto-approve \
-          -var "cloudflare_api_token=${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-          -var "cloudflare_zone_id=${{ secrets.CLOUDFLARE_ZONE_ID }}" \
-          -var "new_relic_license_key=${{ secrets.NEW_RELIC_LICENSE_KEY }}"
+        run: |
+          terraform -chdir=./terraform apply --auto-approve \
+            -var "cloudflare_api_token=${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -var "cloudflare_zone_id=${{ secrets.CLOUDFLARE_ZONE_ID }}" \
+            -var "new_relic_license_key=${{ secrets.NEW_RELIC_LICENSE_KEY }}"
 
       - name: Terraform destroy
         id: destroy
-        run: terraform destroy --auto-approve \
-          -var "cloudflare_api_token=${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-          -var "cloudflare_zone_id=${{ secrets.CLOUDFLARE_ZONE_ID }}" \
-          -var "new_relic_license_key=${{ secrets.NEW_RELIC_LICENSE_KEY }}"
+        run: |
+          terraform -chdir=./terraform destroy --auto-approve \
+            -var "cloudflare_api_token=${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -var "cloudflare_zone_id=${{ secrets.CLOUDFLARE_ZONE_ID }}" \
+            -var "new_relic_license_key=${{ secrets.NEW_RELIC_LICENSE_KEY }}"
