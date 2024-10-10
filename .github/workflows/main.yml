@@ -9,7 +9,7 @@ env:
   TF_LOG: INFO
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  CREDS_VAR: ${{ secrets.CREDS_VAR }}  # Change this to a valid environment variable name
+  CREDS_VAR: ${{ secrets.CREDS_VAR }}  # Your combined credentials secret
 
 jobs:
   terraform:
@@ -41,11 +41,25 @@ jobs:
       - name: Terraform validate
         id: validate
         run: terraform validate
-        
+
+      - name: Set environment variables from CREDS_VAR
+        id: set-creds
+        run: |
+          IFS='|' read -r CLOUD_FLARE_API_TOKEN CLOUD_FLARE_ZONE_ID NEW_RELIC_LICENSE_KEY <<< "${{ env.CREDS_VAR }}"
+          echo "cloudflare_api_token=${CLOUD_FLARE_API_TOKEN}" >> $GITHUB_ENV
+          echo "cloudflare_zone_id=${CLOUD_FLARE_ZONE_ID}" >> $GITHUB_ENV
+          echo "new_relic_license_key=${NEW_RELIC_LICENSE_KEY}" >> $GITHUB_ENV
+
       - name: Terraform apply
         id: apply
-        run: terraform apply --auto-approve -var="creds_var=${{ env.CREDS_VAR }}"  # Correctly reference the environment variable
+        run: terraform apply --auto-approve \
+          -var="cloudflare_api_token=${{ env.cloudflare_api_token }}" \
+          -var="cloudflare_zone_id=${{ env.cloudflare_zone_id }}" \
+          -var="new_relic_license_key=${{ env.new_relic_license_key }}"
 
       - name: Terraform destroy
         id: destroy
-        run: terraform destroy --auto-approve -var="creds_var=${{ env.CREDS_VAR }}"  # Correctly reference the environment variable
+        run: terraform destroy --auto-approve \
+          -var="cloudflare_api_token=${{ env.cloudflare_api_token }}" \
+          -var="cloudflare_zone_id=${{ env.cloudflare_zone_id }}" \
+          -var="new_relic_license_key=${{ env.new_relic_license_key }}"
