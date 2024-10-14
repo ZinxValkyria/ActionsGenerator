@@ -1,6 +1,6 @@
 """
 This module initializes and configures a Flask web application.
-It serves HTML pages and provides an endpoint to fetch local 
+It serves HTML pages and provides an endpoint to fetch local
 YAML script files from the 'scripts' directory.
 """
 
@@ -119,7 +119,7 @@ def fetch_yaml(filename):
     """
     file_path = os.path.join(SCRIPTS_DIR, filename)
 
-    # Check if the file exists 
+    # Check if the file exists
     if os.path.isfile(file_path):
         return send_from_directory(SCRIPTS_DIR, filename)
 
