@@ -8,7 +8,7 @@ import os
 from flask import Flask, render_template, send_from_directory, abort
 from dotenv import load_dotenv
 
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder="templatesv2")
 
 load_dotenv()
 
