@@ -6,14 +6,16 @@ YAML script files from the 'scripts' directory.
 
 import os
 from flask import Flask, render_template, send_from_directory, abort
+from dotenv import load_dotenv
 
 app = Flask(__name__, template_folder="templates")
+
 load_dotenv()
 
-# Define the directory where local YAML scripts are stored
+#  YAML scripts are stored
 SCRIPTS_DIR = os.path.join(os.getcwd(), "scripts")
 
-# Ensure that the scripts directory exists
+# Ensure scripts directory exists
 if not os.path.exists(SCRIPTS_DIR):
     raise FileNotFoundError(
         f"The directory {SCRIPTS_DIR} does not exist. Please check your project structure."
@@ -118,11 +120,11 @@ def fetch_yaml(filename):
     """
     file_path = os.path.join(SCRIPTS_DIR, filename)
 
-    # Check if the file exists before sending it
+    # Check if the file exists 
     if os.path.isfile(file_path):
         return send_from_directory(SCRIPTS_DIR, filename)
 
-    # If the file doesn't exist, return a 404 error
+    # If the file doesn't exist, return error
     return abort(404, description="File not found")
 
 
