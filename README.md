@@ -33,8 +33,8 @@ The application will save users time and effort by simplifying the creation and 
 
 ## Technologies Used
 
-- **Frontend**: [Specify frontend technologies, e.g., React, Vue, etc.]
-- **Backend**: [Specify backend technologies, e.g., Flask, Django, etc.]
+- **Frontend**: HTML,CSS,Javascript
+- **Backend**: Flask server (python)
 - **Infrastructure**: Terraform
 - **Monitoring**: New Relic (or other monitoring tools)
-- **Database**: [Specify database if applicable, e.g., PostgreSQL, MongoDB, etc.]
+- **Database**: DynamoDB for state-locking
