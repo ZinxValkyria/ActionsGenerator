@@ -6,7 +6,7 @@ terraform {
     # Uncomment the next line if you want to use DynamoDB for state locking
     # dynamodb_table = "state-lock"
 #  }
-
+  
   required_providers {
     cloudflare = {
       source  = "cloudflare/cloudflare" # Correct source address for Cloudflare
