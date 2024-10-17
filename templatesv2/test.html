@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow YAML Loader</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Select a Workflow to Load YAML</h1>
+    
+    <label for="workflowDropdown">Choose a Workflow:</label>
+    <select id="workflowDropdown">
+      <option value="">Select Workflow</option>
+      <option value="/scripts/aws.yaml">AWS</option>
+      <option value="/scripts/gcp.yaml">GCP</option>
+      <option value="/scripts/azure.yaml">Azure</option>
+      <option value="/scripts/github.yaml">GitHub Actions</option>
+      <option value="/scripts/test.yaml">Testing</option>
+      <option value="/scripts/custom.yaml">Custom Workflow</option>
+    </select>
+
+    <h2>YAML Content</h2>
+    <!-- Area to display the fetched YAML content -->
+    <pre id="yamlContent">Select a workflow to load its YAML file.</pre>
+  </div>
+
+  <!-- Link to external JavaScript file -->
+  <script src="{{ url_for('static', filename='js/testing.js') }}"></script>
+
+</body>
+</html>
