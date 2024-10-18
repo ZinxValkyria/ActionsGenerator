@@ -51,7 +51,7 @@ li {
     justify-content: center; /* Center the navigation items horizontally */
     align-items: center; /* Center items vertically */
     height: 43px; /* Adjust the height as needed */
-    margin-bottom: 100px; /* Add margin at the bottom */ 
+    margin-bottom: 20px; /* Add margin at the bottom */ 
     border-radius: 15px;
 }
 
@@ -62,7 +62,7 @@ li {
     display: flex; /* Display list items horizontally */
     width: 100%; /* Ensure the ul takes full width */
     justify-content: space-around; /* Distribute items evenly */
-    border-radius: 20px;
+    border-radius: 25px;
 }
 
 .topnav a {
@@ -81,7 +81,6 @@ li {
 
 /* Grid layout for splitting the page into 3 sections */
 .container {
-    margin-left: 50px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 30px;
@@ -122,7 +121,7 @@ input[type="checkbox"] {
     border-radius: 8px;
     border: 1px solid #ccc;
     white-space: pre-wrap;
-    height: 480px;
+    height: 300px;
     overflow-y: scroll;
     font-family: monospace;
 }
@@ -177,7 +176,6 @@ button {
     justify-content: space-around; /* Space out items evenly */
     align-items: center; /* Center items vertically */
     flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
-    padding: 20px 0;
 }
 
 
@@ -185,7 +183,7 @@ button {
     flex: 1; /* Make items flexible */
     max-width: 100px; /* Limit max width of each icon */
     text-align: center; /* Center-align images and text */
-    margin-top: 320px;
+    margin-top: 12%;
 }
 
 .icon-item img {

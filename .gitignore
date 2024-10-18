@@ -30,7 +30,7 @@ share/python-wheels/
 .env
 origin_cert.pem
 origin_private.pem
-
+node_modules/
 
 
 
