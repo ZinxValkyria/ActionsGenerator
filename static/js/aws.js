@@ -26,7 +26,7 @@ function handleAWSDeploy() {
 
     // Map deploy tasks to their corresponding YAML file and info element
     const deployMap = {
-        's3': { url: '/scripts/aws/s3.yaml', infoId: 's3_info' },
+        's3': { url: '/scripts/aws/s3.yaml', infoId: 's3' },
         'ec2': { url: '/scripts/aws/ec2.yaml', infoId: 'ec2_info' },
         'ecr': { url: '/scripts/aws/ecr.yaml', infoId: 'ecr_info' },
         'ecs': { url: '/scripts/aws/ecs.yaml', infoId: 'ecs_info' },

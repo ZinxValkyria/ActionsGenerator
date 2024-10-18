@@ -116,7 +116,7 @@ def gh_pages():
     return render_template("custom.html")
 
 
-# Route to fetch YAML files from local storage
+#Route to fetch YAML files from local storage
 @app.route("/scripts/<path:filename>", methods=["GET"])
 def fetch_yaml(filename):
     """
