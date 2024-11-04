@@ -1,9 +1,9 @@
-name: "Terraform test GH actions"
+name: "Terraform Test GitHub Actions"
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual trigger of the workflow
     paths:
-      - 'terraform/**'  # Manually trigger the workflow for changes in the terraform directory
+      - 'terraform/**'  # Trigger only for changes in the terraform directory
 
 env:
   TF_LOG: INFO
@@ -15,41 +15,52 @@ jobs:
   terraform:
     name: "Terraform Infrastructure Change Management"
     runs-on: ubuntu-latest
-    needs: Pipeline
-    defaults:
-      run:
-        shell: bash
-        working-directory:./terraform
 
     steps:
-      - name: Checkout the repository to the runner
+      - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Setup Terraform with specified version on the runner
+      - name: Setup Terraform with specified version
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.3.0
 
       - name: Terraform init
-        id: init
         run: terraform init -backend-config="bucket=${{ env.BUCKET_TF_STATE }}"
+        working-directory: ./terraform
 
-      - name: Terraform format
-        id: fmt
+      - name: Terraform format check
         run: terraform fmt -check
+        working-directory: ./terraform
 
       - name: Terraform validate
-        id: validate
         run: terraform validate
+        working-directory: ./terraform
 
       - name: Terraform plan
-        id: plan
         run: terraform plan -no-color -input=false
+        working-directory: ./terraform
 
       - name: Terraform apply
-        id: apply
         run: terraform apply --auto-approve
+        working-directory: ./terraform
+        if: github.event_name == 'workflow_dispatch'  # Optional: only apply on manual trigger
 
-      - name: Terraform destroy
-        id: destroy
-        run: terraform destroy --auto-approve
+      # Optional: Separate destroy job for controlled usage
+      destroy:
+        name: "Terraform Destroy"
+        runs-on: ubuntu-latest
+        needs: terraform
+        steps:
+          - name: Checkout the repository
+            uses: actions/checkout@v2
+
+          - name: Setup Terraform
+            uses: hashicorp/setup-terraform@v2
+            with:
+              terraform_version: 1.3.0
+
+          - name: Terraform destroy
+            run: terraform destroy --auto-approve
+            working-directory: ./terraform
+            if: github.event_name == 'workflow_dispatch'  # Optional: only destroy on manual trigger
