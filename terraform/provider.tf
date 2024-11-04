@@ -31,20 +31,3 @@ resource "cloudflare_record" "app_record" {
   ttl     = 300                    # Time to live in seconds
   proxied = false                  # Set to true if you want Cloudflare's proxy features
 }
-
-
-# Uncomment to use DynamoDB for state locking
-# resource "aws_dynamodb_table" "terraform_state_lock" {
-#   name           = "state-lock"
-#   billing_mode   = "PAY_PER_REQUEST"
-#   hash_key       = "LockID"
-
-#   attribute {
-#     name = "LockID"
-#     type = "S"
-#   }
-
-#   tags = {
-#     Name = "Terraform State Lock Table"
-#   }
-# }
