@@ -58,5 +58,5 @@ jobs:
   destroy:
     name: Terraform Destroy
     uses: ./.github/workflows/terraform-destroy.yml
-    needs: [approve]
+    needs: [apply]
     secrets: inherit
