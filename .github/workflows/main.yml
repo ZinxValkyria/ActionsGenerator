@@ -12,11 +12,10 @@ jobs:
   build_and_push:
     name: Build and Push
     runs-on: ubuntu-latest
-
+    
     outputs:
       IMAGE_TAG: ${{ steps.docker_tag.outputs.IMAGE_TAG }}  # Output IMAGE_TAG for next job
     
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -40,10 +39,18 @@ jobs:
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
 
+  approve:
+    name: Manual Approval
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: Request Approval
+        run: echo "Waiting for manual approval..."
+
   apply:
     name: Terraform Apply 
-    uses: ./.github/workflows/terraform-apply.yml  # Reference to the tf_apply.yml workflow
-    needs: [build_and_push]
+    uses: ./.github/workflows/terraform-apply.yml
+    needs: [build_and_push]  # Ensure this runs after the approval job
     secrets: inherit
     with:
       IMAGE_TAG: ${{ needs.build_and_push.outputs.IMAGE_TAG }}  # Pass IMAGE_TAG to the apply job
@@ -51,5 +58,5 @@ jobs:
   destroy:
     name: Terraform Destroy
     uses: ./.github/workflows/terraform-destroy.yml
-    needs: [apply]
+    needs: [approve]
     secrets: inherit
