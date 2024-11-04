@@ -2,6 +2,9 @@ name: MY NEw PIPELINE
 
 on:
   workflow_dispatch:
+  push:
+      branches:
+        - feature/infrastructure
 
 permissions: write-all
 
