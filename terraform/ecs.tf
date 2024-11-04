@@ -84,7 +84,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
 [
   {
     "name": "actions-generator",
-    "image": "zinx666/actions_generator:9f6c8d2",
+    "image": "zinx666/actions_generator:${IMAGE_TAG}",
     "essential": true,
     "portMappings": [
       {
