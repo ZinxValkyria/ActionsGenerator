@@ -15,10 +15,11 @@ jobs:
   terraform:
     name: "Terraform Infrastructure Change Management"
     runs-on: ubuntu-latest
+    needs: Pipeline
     defaults:
       run:
         shell: bash
-        working-directory: ./terraform
+        working-directory:./terraform
 
     steps:
       - name: Checkout the repository to the runner
