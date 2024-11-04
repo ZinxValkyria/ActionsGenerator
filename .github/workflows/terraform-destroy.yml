@@ -1,4 +1,4 @@
-name: Terraform Destroy
+name: Terraform Apply
 on:
   workflow_dispatch:
   workflow_call:
@@ -7,15 +7,19 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  IMAGE_TAG: ${{ github.sha }}
+
 jobs:
-  terraform_destroy:
-    name: Destroy infra
+  deploy-infra:
+    name: Deploy infra
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: terraform
-    
+        working-directory: terraform/
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4 
+
     - name: populate secrets.auto.tfvars
       run: |
         cat <<EOF >> secrets.auto.tfvars
@@ -24,6 +28,9 @@ jobs:
         new_relic_license_key = "${{secrets.NEW_RELIC_LICENSE_KEY}}"
         EOF
 
-    - uses: actions/checkout@v4
-    - name: Terraform init and destroy
-      run: terraform init && terraform destroy --auto-approve
+    - name: Terraform Init
+      run: terraform init
+    - name: Terraform Destroy
+      run: terraform destroy -var="IMAGE_TAG=${{ env.IMAGE_TAG }}" --auto-approve
+
+     
