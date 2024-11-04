@@ -1,0 +1,51 @@
+{% extends 'base2.html' %}
+{% block title %}Azure Page{% endblock %}
+{% block content %}
+<h1>AWS TESTS</h1>
+      <div class="container">
+        <!-- Left Section: Form -->
+        <div class="left-section">
+            <h2>Tasks and Workflows</h2><br>
+
+            <form action="/generate" method="post" onsubmit="return handleTaskChange()">
+                <label for="task">What AWS Task/Action would you like to implement in Github Actions</label>
+                <select id="task" name="task" required onchange="handleTaskChange()">
+                    <option value="configure">Configure</option>
+                    <option value="deploy">Deploy</option>
+                    <option value="cli">AWS CLI commands</option>
+                    <option value="logs">Logs</option>
+                </select><br><br>
+
+                <!-- Deployment section (hidden by default) -->
+                <div id="deployList" style="display: none;">
+                  <label for="deploy_task">Choose a Workflow:</label>
+                  <select id="deploy_task" required onchange="loadAdditionalContent()">
+                      <option value="">Select Workflow</option>
+                      <option value="/scripts/aws/ec2.yaml">AWS</option>
+                      <option value="/scripts/gcp/auth.yaml">GCP</option>
+                      <option value="/scripts/azure.yaml">Azure</option>
+                      <option value="/scripts/github.yaml">GitHub Actions</option>
+                      <option value="/scripts/test.yaml">Testing</option>
+                      <option value="/scripts/custom.yaml">Custom Workflow</option>
+                  </select>
+                </div>
+            </form> <!-- Closing form tag placed correctly here -->
+        </div>
+
+        <!-- Middle Section: YAML Script Output -->
+        <div class="middle-section">
+            <h2>YAML Script</h2>
+            <pre id="scriptOutput"></pre>
+            <button type="button" class="button">Copy</button> <!-- Correct button type -->
+            <img src="/static/images/aws.png" alt="AWS Icon">
+        </div>
+
+        <!-- Right Section: Future Content -->
+        <div class="right-section"> <h2>Additional Configurations</h2>
+          
+        </div>
+    </div><div id="contentOutput"></div>
+            <p>Future content for more settings can go here.</p>
+    <script src="/static/js/testing.js"></script>
+
+{% endblock %}
