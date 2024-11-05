@@ -1,0 +1,29 @@
+name: Google Cloud CLI Action
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  gcloud-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Execute Google Cloud CLI Command
+        run: |
+          # Placeholder for your Google Cloud CLI commands
+          # For example: gcloud compute instances list
+          gcloud storage buckets list
+
+      - name: Logout from Google Cloud
+        run: |
+          gcloud auth revoke

@@ -1,5 +1,5 @@
 {% extends 'base2.html' %}
-{% block title %}Azure Page{% endblock %}
+{% block title %}Test Page{% endblock %}
 {% block content %}
 <h1>AWS TESTS</h1>
       <div class="container">
@@ -36,7 +36,7 @@
         <div class="middle-section">
             <h2>YAML Script</h2>
             <pre id="scriptOutput"></pre>
-            <button type="button" class="button">Copy</button> <!-- Correct button type -->
+            <button type="button" class="button" onclick="copyPre()">Copy</button> <!-- Correct button type -->
             <img src="/static/images/aws.png" alt="AWS Icon">
         </div>
 
@@ -45,7 +45,6 @@
           
         </div>
     </div><div id="contentOutput"></div>
-            <p>Future content for more settings can go here.</p>
     <script src="/static/js/testing.js"></script>
 
 {% endblock %}

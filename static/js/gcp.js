@@ -1,72 +1,82 @@
 function handleTaskChange() {
     const task = document.getElementById('task').value;
-    const deployList = document.getElementById('deploylist');
+    const deployList = document.getElementById('deployList');
+    const scriptOutput = document.getElementById('scriptOutput');
 
     if (task === 'deploy') {
-        deployList.style.display = 'block';  // Show deploy options if 'deploy' is selected
+        deployList.style.display = 'block';
+        scriptOutput.textContent = ''; // Clear previous output
     } else {
-        deployList.style.display = 'none';   // Hide deploy options for non-deploy tasks
-        fetchTask(task);                     // Fetch YAML for non-deploy tasks
+        deployList.style.display = 'none';
+        if (task === '/scripts/gcp/gcp_cli.yaml') {
+            loadYaml(task); // Load GCP CLI YAML when selected
+        } else {
+            scriptOutput.textContent = ''; // Clear output for other tasks
+        }
     }
 }
 
-function handleGCPDeploy() {
-    const deployTask = document.getElementById('deploy_task').value;
-    let deployUrl = '';
-
-    // Map deploy task to its folder and YAML file
-    switch (deployTask) {
-        case 'g_app':
-            console.log('Deploying to Google App engine...');
-            deployUrl = `/scripts/gcp/app_engine.yaml`;
-            break;
-        case 'g_ce':
-            console.log('Deploying to Google Compute Engine...');
-            deployUrl = `/scripts/gcp/gce.yaml`;
-            break;
-        case 'g_ke':
-            console.log('Deploying to ECR...');
-            deployUrl = `/scripts/gcp/gke.yaml`;
-            break;
-        case 'g_cf':
-            console.log('Deploying to Google cloud function...');
-            deployUrl = `/scripts/gcp/g_cf.yaml`;
-            break;
-        default:
-            console.log('Unknown deploy task');
-            return;  // Exit early if the task is unknown
-    }
-
-    // Fetch and display the YAML content
-    fetch(deployUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok'); // More detailed error handling
-            }
-            return response.text();
-        })
-        .then(script => {
-            document.getElementById('scriptOutput').textContent = script;
-        })
-        .catch(error => {
-            console.error('Error fetching YAML:', error);  // Log the error for debugging
-            document.getElementById('scriptOutput').textContent = 'Error fetching YAML script.';
-        });
+function copyPre() {
+    // Get the content of the <pre> element
+    const preText = document.getElementById("scriptOutput").textContent;
+  
+    // Create a temporary textarea to enable copying the content
+    const tempTextarea = document.createElement("textarea");
+    tempTextarea.value = preText;
+  
+    // Add it to the document, select the content, and copy it
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    tempTextarea.setSelectionRange(0, 99999); // For mobile compatibility
+  
+    // Copy the content to the clipboard
+    navigator.clipboard.writeText(tempTextarea.value).then(() => {
+        alert("Copied the YAML successfully!");
+    }).catch(err => {
+        console.error("Failed to copy YAML: ", err);
+    });
+  
+    // Remove the temporary textarea element
+    document.body.removeChild(tempTextarea);
 }
 
-function fetchTask(task) {
-    // Adjust path for non-deploy tasks if necessary
-    const taskUrl = `/scripts/${task}.yaml`;  // Fetch the task YAML from /scripts folder
+function loadYaml(filePath) {
+    const rightContent = document.getElementById('contentOutput');
 
-    fetch(taskUrl)
-        .then(response => {
-            return response.text();
-        })
-        .then(script => {
-            document.getElementById('scriptOutput').textContent = script;
-        })
-        .catch(error => {
-            console.error('Error fetching YAML:', error);
-            document.getElementById('scriptOutput').textContent = 'Error fetching YAML script.';
-        });
+    if (filePath) {
+        fetch(filePath)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Could not load file: ' + filePath);
+                }
+                return response.text();
+            })
+            .then(data => {
+                document.getElementById('scriptOutput').textContent = data;
+
+                // Set additional configuration details based on the selected GCP service
+                switch (filePath) {
+                    case '/scripts/gcp/app_engine.yaml':
+                        rightContent.innerHTML = '<h3>Google App Engine</h3><p>Deploy scalable web applications using Google App Engine.</p>';
+                        break;
+                    case '/scripts/gcp/gce.yaml':
+                        rightContent.innerHTML = '<h3>Google Compute Engine</h3><p>Deploy virtual machines on Google Compute Engine.</p>';
+                        break;
+                    case '/scripts/gcp/gke.yaml':
+                        rightContent.innerHTML = '<h3>Google Kubernetes Engine</h3><p>Deploy containerized applications on GKE.</p>';
+                        break;
+                    case '/scripts/gcp/gcf.yaml':
+                        rightContent.innerHTML = '<h3>Google Cloud Functions</h3><p>Deploy event-driven functions with Google Cloud Functions.</p>';
+                        break;
+                    default:
+                        rightContent.innerHTML = ''; // Clear content if no matching case
+                        break;
+                }
+            })
+            .catch(error => {
+                document.getElementById('scriptOutput').textContent = 'Error: ' + error.message;
+            });
+    } else {
+        document.getElementById('scriptOutput').textContent = '';
+    }
 }
