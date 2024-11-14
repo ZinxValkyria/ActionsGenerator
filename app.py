@@ -32,6 +32,16 @@ def home():
     """
     return render_template("home.html")
 
+@app.route("/test")
+def test():
+    """
+    Renders the homepage (home.html).
+
+    Returns:
+        The rendered HTML template for the homepage.
+    """
+    return render_template("test.html")
+
 
 # Route for AWS page
 @app.route("/aws")
@@ -105,7 +115,7 @@ def gh_pages():
     return render_template("custom.html")
 
 
-# Route to fetch YAML files from local storage
+#Route to fetch YAML files from local storage
 @app.route("/scripts/<path:filename>", methods=["GET"])
 def fetch_yaml(filename):
     """
