@@ -13,13 +13,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
+# Copy the New Relic configuration file
+COPY newrelic.ini /app/newrelic.ini
+
 # Expose port 5000 for the Flask application
 EXPOSE 5000
 
-# Set environment variables
+# Set environment variables for Flask
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
+ENV NEW_RELIC_CONFIG_FILE=/app/newrelic.ini
 
-# Run the Flask application
-CMD ["flask", "run"]
+# Run the Flask application using New Relic
+CMD ["newrelic-admin", "run-program", "flask", "run"]

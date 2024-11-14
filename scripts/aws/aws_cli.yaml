@@ -1,0 +1,31 @@
+name: AWS CLI Action
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  aws-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          echo "[default]" > ~/.aws/config
+          echo "region=us-east-1" >> ~/.aws/config # Change to your desired region
+
+      - name: Execute AWS CLI Command
+        run: |
+          # Placeholder for your AWS CLI commands
+          # For example: aws ec2 describe-instances
+          aws s3 ls
+
+      - name: Cleanup AWS Credentials
+        run: |
+          rm -rf ~/.aws
