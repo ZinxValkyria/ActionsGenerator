@@ -1,0 +1,61 @@
+name: Merge Checks for Dev to Main
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+
+jobs:
+  lint-and-test:
+    name: Python Linting and Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Python
+      - name: Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      # Step 3: Install Dependencies
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      # Step 4: Lint Python Code
+      - name: Lint Python Code
+        run: |
+          flake8 app/
+          black --check app/
+
+      # Step 5: Run Python Tests
+      - name: Run Tests with Pytest
+        run: pytest --cov=app tests/
+
+  snyk-scan:
+    name: Snyk Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Snyk
+      - name: Snyk Authentication
+        uses: snyk/actions/setup@v2
+        with:
+          token: ${{ secrets.SNYK_TOKEN }}
+
+      # Step 3: Run Snyk Python Test
+      - name: Run Snyk Dependency Test
+        run: snyk test --file=requirements.txt --package-manager=pip
+
+      # Step 4: Monitor Snyk for Vulnerabilities
+      - name: Snyk Monitor
+        run: snyk monitor --file=requirements.txt --package-manager=pip
