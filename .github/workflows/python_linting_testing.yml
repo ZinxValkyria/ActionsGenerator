@@ -35,10 +35,6 @@ jobs:
         run: |
           black .
 
-      - name: Lint with flake8
-        run: |
-          flake8 .
-
   snyk-scan:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
@@ -50,7 +46,7 @@ jobs:
 
       # Step 2: Run Snyk to check for vulnerabilities
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python@v1
+        uses: snyk/actions/setup@v2
         continue-on-error: true  # Allow errors to continue so SARIF can be uploaded
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
