@@ -58,6 +58,9 @@ jobs:
     uses: ./.github/workflows/terraform-destroy.yml
     needs: [apply]
     secrets: inherit
+    with:
+        IMAGE_TAG: ${{ needs.build_and_push.outputs.IMAGE_TAG }}  # Pass IMAGE_TAG to the apply job
+  
 
  
 
