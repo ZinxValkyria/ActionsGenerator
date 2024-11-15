@@ -23,6 +23,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_API_KEY }}
 
+      - name: Populate secrets.auto.tfvars
+        run: |
+          cat <<EOF >> secrets.auto.tfvars
+          cloudflare_api_token = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          cloudflare_zone_id = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
+          new_relic_license_key = "${{ secrets.NEW_RELIC_LICENSE_KEY }}"
+          EOF
+
       - name: Build Docker Image
         id: docker_build
         run: |
