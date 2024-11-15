@@ -3,7 +3,7 @@ name: SNYK SCANNING
 on:
   
   push:
-    branches: [ "feat/infrastructure", "main", "dev" ]
+    branches: [ "feat/infrastructure", "feat/backend", "feat/", "main", "dev" ]
   workflow_dispatch:
   pull_request:
     branches: [ "main" ]
