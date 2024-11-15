@@ -1,6 +1,5 @@
 
 
-Define the S3 bucket
 resource "aws_s3_bucket" "actions_template_state" {
   bucket = "actions-template-state" # Change this to your desired bucket name
 
@@ -35,9 +34,4 @@ resource "aws_s3_bucket_lifecycle_configuration" "actions_template_lifecycle" {
       days = 30 # Adjust as needed
     }
   }
-}
-
-
-resource "aws_s3_bucket_versioning" "actions_template_versioning" {
-  bucket = aws_s3_bucket.actions_template_state.id
 }

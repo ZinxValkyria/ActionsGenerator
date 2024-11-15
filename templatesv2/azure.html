@@ -1,59 +1,53 @@
 {% extends 'base.html' %}
 
-{% block title %}Azure Page{% endblock %}
+{% block title %}Azure Deployment Page{% endblock %}
 
 {% block content %}
-<h1>Microsoft Azure</h1>
-      <div class="container">
-        <!-- Left Section: Form -->
-        <div class="left-section">
-            <h2>Tasks and Workflows</h2><br>
+<h1>Microsoft Azure Deployment Configuration</h1>
+<div class="container">
+    <!-- Left Section: Form -->
+    <div class="left-section">
+        <h2>Tasks and Workflows</h2><br>
+        <form id="azureForm" onsubmit="return false;">
+            <label for="task">Select Azure Workflow for GitHub Actions:</label>
+            <select id="task" name="task" required onchange="handleTaskChange()">
+                <option value="">Select Action</option>
+                <option value="login">Login</option>
+                <option value="deploy">Deploy</option>
+                <option value="/scripts/azure/azure_cli.yaml">Azure CLI commands</option>
+                <option value="logs">Logs</option>
+            </select><br><br>
 
-            <form action="/generate" method="post" onsubmit="return handleTaskChange()">
-                <label for="task">What Azure based workflow would you like to implement in Github Actions</label>
-                <select id="task" name="task" required onchange="handleTaskChange()">
-                    <option value="configure">Configure</option>
-                    <option value="deploy">Deploy</option>
-                    <option value="cli">Azure CLI commands</option>
-                    <option value="logs">Logs</option>
+            <!-- Deployment section (hidden by default) -->
+            <div id="deployList" style="display: none;">
+                <label for="deploy_task">Select Azure Service for Deployment:</label>
+                <select id="deploy_task" name="deploy_task" required onchange="loadYaml(this.value)">
+                    <option value="">Select Service</option>
+                    <option value="/scripts/azure/az_k8s.yaml">Azure Kubernetes Service</option>
+                    <option value="/scripts/azure/az_web_app.yaml">Azure Web App</option>
+                    <option value="/scripts/azure/postgres.yaml">Azure PostgreSQL</option>
+                    <option value="/scripts/azure/sql.yaml">Azure SQL Database</option>
+                    <option value="/scripts/azure/static_site.yaml">Azure Static Web Apps</option>
                 </select><br><br>
+            </div>
+        </form>
+    </div>
 
+    <!-- Middle Section: YAML Script Output -->
+    <div class="middle-section">
+        <h2>YAML Script</h2>
+        <pre id="scriptOutput"></pre>
+        <button type="button" class="button" onclick="copyPre()">Copy</button>
+        <img src="/static/images/az.jpg" alt="Azure Icon">
+    </div>
 
-                <!-- Deployment section (hidden by default) -->
-                <div id="deploylist" style="display: none;">
-                    <label for="deploy_task">What Microsoft Azure service would you like to deploy to:</label>
-                    <select id="deploy_task" name="deploy_task" required onchange="handleAzureDeploy()">
-                        <option value="az_k8s">Azure Kubernetes service</option>
-                        <option value="az_wa">Azure Web App</option>
-                        <option value="az_pg">Azure PostgreS</option>
-                        <option value="az_sql">Azure SQL</option>
-                        <option value="az_ss">Azure Static Site</option>
-                    </select><br><br>
-                    <button type="submit" class="copy">Generate YAML</button>
-
-                </div>
-            </form>
-        </div>
-
-        <!-- Middle Section: YAML Script Output -->
-        <div class="middle-section">
-
-            <h2>YAML Script</h2>
-            <pre id="scriptOutput"></pre>
-            <button type="submit" class="button">Copy</button>
-            <img src="/static/images/az.jpg" alt="Azure Icon"> 
-
-
-
-        </div>
-
-        <!-- Right Section: Future Content -->
-         
-        <div class="right-section"> <h2>Additional Configurations</h2>
-            <p>Future content for more settings can go here.</p>
+    <!-- Right Section: Additional Configurations -->
+    <div class="right-section">
+        <h2>Additional Configurations</h2>
+        <div id="contentOutput">
+            <p>Select a service to view specific configurations.</p>
         </div>
     </div>
-    <script src = "/static/js/azure.js"></script>
-
+</div>
+<script src="/static/js/azure.js"></script>
 {% endblock %}
-

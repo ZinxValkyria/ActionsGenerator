@@ -1,13 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylesv2.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-
+    <!-- Preconnect for faster font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Load fonts with swap display for better loading performance -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Inline critical CSS -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+        /* Add any critical styles that are required for immediate rendering */
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        /* Additional styles can be added here */
+    </style>
+
+    <!-- Preload the main CSS file -->
+    <link rel="preload" href="{{ url_for('static', filename='css/styles.css') }}" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"></noscript>
+    
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/custom.png') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Page Title{% endblock %}</title>
@@ -16,10 +37,9 @@
     <!-- Include header -->
     {% include 'header.html' %}
     
-    <!-- <div class="container"> -->
-        {% block content %}{% endblock %}
-   
-
+    <!-- Main content block -->
+    {% block content %}{% endblock %}
+    
     <!-- Include footer -->
     {% include 'footer.html' %}
 </body>

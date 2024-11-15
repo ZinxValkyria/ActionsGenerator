@@ -76,6 +76,30 @@ function handleTaskChange() {
         fetchFromLocal(taskSelect.value);
     }
 
+    function copyPre() {
+        // Get the content of the <pre> element
+        var preText = document.getElementById("scriptOutput").textContent;
+      
+        // Create a temporary textarea to enable copying the content
+        var tempTextarea = document.createElement("textarea");
+        tempTextarea.value = preText;
+      
+        // Add it to the document, select the content, and copy it
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        tempTextarea.setSelectionRange(0, 99999); // For mobile compatibility
+      
+        // Copy the content to the clipboard
+        navigator.clipboard.writeText(tempTextarea.value).then(() => {
+          alert("Copied the YAML successfully: ");
+        }).catch(err => {
+          console.error("Failed to copy YAML: ", err);
+        });
+      
+        // Remove the temporary textarea element
+        document.body.removeChild(tempTextarea);
+      }
+
 // Fetch the YAML script from the local folder
 function fetchFromLocal(task, deploytask) {
     const taskurl = `/fetch_yaml/${task}.yaml`;

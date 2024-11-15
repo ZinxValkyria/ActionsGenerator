@@ -84,7 +84,7 @@ li {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 30px;
-    max-width: 100%;
+    max-width: 200%;
     flex: 1; /* Make sure the container grows */
 }
 
@@ -121,7 +121,8 @@ input[type="checkbox"] {
     border-radius: 8px;
     border: 1px solid #ccc;
     white-space: pre-wrap;
-    height: 300px;
+    height: 50%;
+
     overflow-y: scroll;
     font-family: monospace;
 }
@@ -162,7 +163,7 @@ button {
     display: block;
     margin: 0 auto;
     margin-top: 15px; /* Center horizontally */
-    margin-bottom: 30px;
+    margin-bottom: 20%;
 }
 
 /* CSS for the icon-section */
@@ -206,7 +207,7 @@ footer {
     padding: 10px 0;
     width: 100%;
     margin-top: auto; /* Push footer to the bottom */
-    position: relative;
+    position: sticky;
 }
 
 /* For small screen sizes, make the layout more responsive */

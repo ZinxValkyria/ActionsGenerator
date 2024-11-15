@@ -11,7 +11,6 @@ function handleTaskChange() {
   }
 }
 
-
 function loadYaml() {
   const deploy_task = document.getElementById('deploy_task').value;
 
@@ -67,4 +66,4 @@ function loadAdditionalContent() {
       break;
   }
 }
-document.getElementById('deploy_task').addEventListener('change', loadAdditionalContent);
+
