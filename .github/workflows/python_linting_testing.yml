@@ -1,11 +1,14 @@
 name: Merge Checks for Dev to Main
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - '**/*.md'
+    push:
+        branches:
+          - feat/backend
+    pull_request:
+      branches:
+        - main
+      paths-ignore:
+        - '**/*.md'
 
 jobs:
   lint-and-test:
