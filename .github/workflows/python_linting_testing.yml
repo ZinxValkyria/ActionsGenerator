@@ -36,24 +36,14 @@ jobs:
           python -m black .
 
   snyk-scan:
-    name: Snyk Security Scan
-    runs-on: ubuntu-latest
 
-    steps:
-      # Step 1: Checkout the code
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Step 2: Setup Snyk
-      - name: Snyk Authentication
-        uses: snyk/actions/setup@v4
-        with:
-          token: ${{ secrets.SNYK_TOKEN }}
-
-      # Step 3: Run Snyk Python Test
-      - name: Run Snyk Dependency Test
-        run: snyk test --file=requirements.txt --package-manager=pip
-
-      # Step 4: Monitor Snyk for Vulnerabilities
-      - name: Snyk Monitor
-        run: snyk monitor --file=requirements.txt --package-manager=pip
+    name: Example workflow for Python using Snyk
+    jobs:
+      security:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@master
+          - name: Run Snyk to check for vulnerabilities
+          uses: snyk/actions/python@master
+          env:
+            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
