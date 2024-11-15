@@ -3,8 +3,8 @@ name: MY NEW PIPELINE
 on:
   workflow_dispatch:
   pull_request:
-      branches:
-        - main
+    branches:
+      - main
 
 permissions: write-all
 
@@ -12,6 +12,9 @@ jobs:
   build_and_push:
     name: Build and Push
     runs-on: ubuntu-latest
+
+    outputs:
+      IMAGE_TAG: ${{ steps.docker_tag.outputs.IMAGE_TAG }}
     
     steps:
       - name: Checkout Repository
@@ -22,28 +25,28 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_API_KEY }}
-          
-                # Set Docker image tag (using the Git SHA or another strategy)
+
       - name: Set Docker image tag
         id: docker_tag
         run: |
-         IMAGE_TAG="${GITHUB_SHA::7}"
-         echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          IMAGE_TAG="${GITHUB_SHA::7}"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
+          
       - name: Build Docker Image
         run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
         
       - name: Push Docker Image
-        run:           docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
 
   apply:
-    name: Terraform Apply 
-    uses: ./.github/workflows/terraform-apply.yml
+    name: Terraform Apply
     needs: [build_and_push]
-    secrets: inherit   
+    uses: ./.github/workflows/terraform-apply.yml
+    secrets: inherit
 
   destroy:
     name: Terraform Destroy
-    uses: ./.github/workflows/terraform-destroy.yml
     needs: [apply]
+    uses: ./.github/workflows/terraform-destroy.yml
     secrets: inherit
-

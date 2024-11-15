@@ -24,5 +24,5 @@ variable "new_relic_license_key" {
 variable "IMAGE_TAG" {
   type    = string
   default = "latest"
-  
+
 }
