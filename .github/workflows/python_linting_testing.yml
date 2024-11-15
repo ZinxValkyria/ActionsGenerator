@@ -1,0 +1,19 @@
+name: Python Linting, Tests, and Snyk Vulnerability Check
+
+on:
+  push:
+    branches:
+      - feat/backend  # Trigger on push to feat/backend
+  pull_request:
+    branches:
+      - main  # Trigger on PR to the main branch
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        linter: [flake8, pylint, ruff, mypy, pytype, pyright, fixit, pyre]
+    steps:
+      - uses: advanced-security/python-lint-code-scanning-action@v1
+        with:
+          linter: ${{ matrix.linter }}
