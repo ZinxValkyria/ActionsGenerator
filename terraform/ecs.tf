@@ -44,7 +44,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
 [
   {
     "name": "actions-generator",
-    "image": "zinx666/actions_generator:${var.IMAGE_TAG}",
+    "image": "zinx666/actions_generator:cf27683",
     "essential": true,
     "portMappings": [
       {
@@ -57,7 +57,7 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "ecs_service" {
-  name            = "actions-generator-service"
+  name            = "actions-generator-service-2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.ecs_task.id
   desired_count   = 1

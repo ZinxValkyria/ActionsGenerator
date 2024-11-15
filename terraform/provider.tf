@@ -25,7 +25,7 @@ provider "cloudflare" {
 
 resource "cloudflare_record" "app_record" {
   zone_id = var.cloudflare_zone_id # Reference a variable for Zone ID
-  name    = "app"                  # This will create app.zinxvalkyria.space
+  name    = "apple"                  # This will create app.zinxvalkyria.space
   value   = aws_lb.app_lb.dns_name # Points to the ALB DNS name
   type    = "CNAME"                # Change to CNAME since you're pointing to a DNS name
   ttl     = 300                    # Time to live in seconds
