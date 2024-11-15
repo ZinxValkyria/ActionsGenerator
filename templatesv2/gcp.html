@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}GCP Deployment Page{% endblock %}
+
+{% block content %}
+<h1>Google Cloud Platform Deployment</h1>
+<div class="container">
+    <!-- Left Section: Form -->
+    <div class="left-section">
+        <h2>Tasks and Workflows</h2><br>
+        <form id="gcpForm" onsubmit="return false;">
+            <label for="task">Choose Google Cloud Task for GitHub Actions:</label>
+            <select id="task" name="task" required onchange="handleTaskChange()">
+                <option value="login">Login</option>
+                <option value="deploy">Deploy</option>
+                <option value="/scripts/gcp/gcp_cli.yaml">Google CLI Commands</option>
+                <option value="logs">Logs</option>
+            </select><br><br>
+
+            <!-- Deployment section (hidden by default) -->
+            <div id="deployList" style="display: none;">
+                <label for="deploy_task">Select Google Cloud Service:</label>
+                <select id="deploy_task" name="deploy_task" required onchange="loadYaml(this.value)">
+                    <option value="">Select Service</option>
+                    <option value="/scripts/gcp/app_engine.yaml">Google App Engine</option>
+                    <option value="/scripts/gcp/gce.yaml">Google Compute Engine</option>
+                    <option value="/scripts/gcp/gke.yaml">Google Kubernetes Engine</option>
+                    <option value="/scripts/gcp/gcf.yaml">Google Cloud Functions</option>
+                </select><br><br>
+            </div>
+        </form>
+    </div>
+
+    <!-- Middle Section: YAML Script Output -->
+    <div class="middle-section">
+        <h2>YAML Script</h2>
+        <pre id="scriptOutput"></pre>
+        <button type="button" class="button" onclick="copyPre()">Copy</button>
+        <img src="/static/images/gcp.jpg" alt="GCP Icon">
+    </div>
+
+    <!-- Right Section: Additional Configurations -->
+    <div class="right-section">
+        <h2>Additional Configurations</h2>
+        <div id="contentOutput">
+            <p>Select a service to see specific configurations.</p>
+        </div>
+    </div>
+</div>
+<script src="/static/js/gcp.js"></script>
+
+{% endblock %}

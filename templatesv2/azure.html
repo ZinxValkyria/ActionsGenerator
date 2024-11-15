@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Azure Deployment Page{% endblock %}
+
+{% block content %}
+<h1>Microsoft Azure Deployment Configuration</h1>
+<div class="container">
+    <!-- Left Section: Form -->
+    <div class="left-section">
+        <h2>Tasks and Workflows</h2><br>
+        <form id="azureForm" onsubmit="return false;">
+            <label for="task">Select Azure Workflow for GitHub Actions:</label>
+            <select id="task" name="task" required onchange="handleTaskChange()">
+                <option value="">Select Action</option>
+                <option value="login">Login</option>
+                <option value="deploy">Deploy</option>
+                <option value="/scripts/azure/azure_cli.yaml">Azure CLI commands</option>
+                <option value="logs">Logs</option>
+            </select><br><br>
+
+            <!-- Deployment section (hidden by default) -->
+            <div id="deployList" style="display: none;">
+                <label for="deploy_task">Select Azure Service for Deployment:</label>
+                <select id="deploy_task" name="deploy_task" required onchange="loadYaml(this.value)">
+                    <option value="">Select Service</option>
+                    <option value="/scripts/azure/az_k8s.yaml">Azure Kubernetes Service</option>
+                    <option value="/scripts/azure/az_web_app.yaml">Azure Web App</option>
+                    <option value="/scripts/azure/postgres.yaml">Azure PostgreSQL</option>
+                    <option value="/scripts/azure/sql.yaml">Azure SQL Database</option>
+                    <option value="/scripts/azure/static_site.yaml">Azure Static Web Apps</option>
+                </select><br><br>
+            </div>
+        </form>
+    </div>
+
+    <!-- Middle Section: YAML Script Output -->
+    <div class="middle-section">
+        <h2>YAML Script</h2>
+        <pre id="scriptOutput"></pre>
+        <button type="button" class="button" onclick="copyPre()">Copy</button>
+        <img src="/static/images/az.jpg" alt="Azure Icon">
+    </div>
+
+    <!-- Right Section: Additional Configurations -->
+    <div class="right-section">
+        <h2>Additional Configurations</h2>
+        <div id="contentOutput">
+            <p>Select a service to view specific configurations.</p>
+        </div>
+    </div>
+</div>
+<script src="/static/js/azure.js"></script>
+{% endblock %}

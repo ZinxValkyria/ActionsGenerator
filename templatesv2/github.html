@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}GitHub Page{% endblock %}
+
+{% block content %}
+<h1>GitHub Tasks</h1>
+<div class="container">
+    <!-- Left Section: Form -->
+    <div class="left-section">
+        <h2>Tasks and Workflows</h2><br>
+        <form action="/generate" method="post">
+            <label for="task">What Task/Action would you like to implement:</label>
+            <select id="task" name="task" required onchange="loadYaml()">
+                <option value="">Select a Task</option>
+                <option value="/scripts/github/login.yaml">Login to Dockerhub</option>
+                <option value="/scripts/github/build_push.yaml">Build & Push Docker Image</option>
+                <option value="/scripts/github/python_tests.yaml">Run Pytest</option>
+                <option value="/scripts/github/gh_pages.yaml">Deploy to GitHub Pages</option>
+                <option value="/scripts/github/linting.yaml">Linting</option>
+                <option value="/scripts/github/snyk.yaml">Snyk</option>
+                <option value="/scripts/github/setup_node.yaml">Setup Node</option>
+            </select><br><br>
+        </form>
+    </div>
+
+    <!-- Middle Section: YAML Script Output -->
+    <div class="middle-section">
+        <h2>Fetched YAML Script</h2>
+        <pre id="scriptOutput"></pre>
+        <button type="button" class="button" onclick="copyPre()">Copy</button>
+        <img src="/static/images/gh-logo.png" alt="GitHub Icon">
+    </div>
+
+    <!-- Right Section: Future Content -->
+    <div class="right-section">
+        <h2>Additional Configurations</h2>
+        <div id="contentOutput">
+            <p>Select a task to see relevant details here.</p>
+        </div>
+    </div>
+</div>
+<script src="/static/js/github.js"></script>
+{% endblock %}

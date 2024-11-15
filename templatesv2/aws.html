@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}AWS Deployment Page{% endblock %}
+{% block content %}
+<h1>AWS Actions</h1>
+<div class="container">
+    <!-- Left Section: Form -->
+    <div class="left-section">
+        <h2>Tasks and Workflows</h2><br>
+        <form id="awsForm" onsubmit="return false;">
+            <label for="task">Select AWS Task/Action for GitHub Actions:</label>
+            <select id="task" name="task" required onchange="handleTaskChange()">
+                <option value="">Select Action</option>
+                <option value="login">Login</option>
+                <option value="deploy">Deploy</option>
+                <option value="/scripts/aws/aws_cli.yaml">AWS CLI commands</option>
+                <option value="logs">Logs</option>
+            </select><br><br>
+
+            <!-- Deployment section (hidden by default) -->
+            <div id="deployList" style="display: none;">
+                <label for="deploy_task">Select AWS service to deploy to:</label>
+                <select id="deploy_task" name="deploy_task" required onchange="loadYaml(this.value)">
+                    <option value="">Select Service</option>
+                    <option value="/scripts/aws/s3.yaml">S3 Bucket</option>
+                    <option value="/scripts/aws/ec2.yaml">EC2 (Elastic Compute Cloud)</option>
+                    <option value="/scripts/aws/ecr.yaml">ECR (Elastic Container Registry)</option>
+                    <option value="/scripts/aws/ecs.yaml">ECS (Elastic Container Service)</option>
+                    <option value="/scripts/aws/eks.yaml">EKS (Elastic Kubernetes Service)</option>
+                    <option value="/scripts/aws/lambda.yaml">AWS Lambda</option>
+                </select><br><br>
+            </div>
+        </form>
+    </div>
+
+    <!-- Middle Section: YAML Script Output -->
+    <div class="middle-section">
+        <h2>YAML Script</h2>
+        <pre id="scriptOutput"></pre>
+        <button type="button" class="button" onclick="copyPre()">Copy</button>
+        <img src="/static/images/aws.png" alt="AWS Icon"> 
+    </div>
+
+    <!-- Right Section: Additional Configurations -->
+    <div class="right-section">
+        <h2>Additional Configurations</h2>
+        <div id="contentOutput">
+            <p>Select a service to see relevant details here.</p>
+        </div>
+    </div>
+</div>
+<script src="/static/js/aws.js"></script>
+{% endblock %}
