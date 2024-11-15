@@ -1,18 +1,18 @@
-name: Python Linting and Tests
+name: Python Linting, Tests, and Security Scan
 
 on:
-    push:
-        branches:
-          - feat/backend
-    pull_request:
-      branches:
-        - main
-      paths-ignore:
-        - '**/*.md'
+  push:
+    branches:
+      - feat/backend  # Trigger when there's a push to feat/backend
+  pull_request:
+    branches:
+      - main  # Trigger for PRs targeting the main branch
+    paths-ignore:
+      - '**/*.md'  # Ignore changes in Markdown files
 
 jobs:
   lint-and-test:
-    name: 
+    name: Lint Python Code and Run Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Setup Python
+      # Step 2: Setup Python Environment
       - name: Setup Python Environment
         uses: actions/setup-python@v4
         with:
@@ -30,20 +30,27 @@ jobs:
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
-      # Step 4: Lint Python Code
+      # Step 4: Lint Python Code with black
       - name: Lint Python Code
         run: |
-          python -m black .
+          python -m black --check .
+
+      # Step 5: Run Python Tests (optional step, you can replace with actual test command)
+      - name: Run Tests with Pytest
+        run: |
+          pytest --maxfail=1 --disable-warnings -q  # Optional, if you have tests
 
   snyk-scan:
+    name: Security Scan with Snyk
+    runs-on: ubuntu-latest
 
-    name: Example workflow for Python using Snyk
-    jobs:
-      security:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@master
-          - name: Run Snyk to check for vulnerabilities
-          uses: snyk/actions/python@master
-          env:
-            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Snyk
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@v1
+        with:
+          token: ${{ secrets.SNYK_TOKEN }}
