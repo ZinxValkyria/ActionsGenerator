@@ -42,12 +42,27 @@ jobs:
   apply:
     name: Terraform Apply
     needs: [build_and_push]
-    uses: ./.github/workflows/terraform-apply.yml
-    with:
-      IMAGE_TAG: ${{ needs.build_and_push.outputs.IMAGE_TAG }}  # Passing IMAGE_TAG to terraform-apply.yml
+    runs-on: ubuntu-latest
+    environment:
+      IMAGE_TAG: ${{ needs.build_and_push.outputs.IMAGE_TAG }}  # Passing IMAGE_TAG to the environment
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Terraform Apply
+        run: |
+          # Add the terraform apply command here
+          terraform init
+          terraform apply -auto-approve
 
   destroy:
     name: Terraform Destroy
     needs: [apply]
-    uses: ./.github/workflows/terraform-destroy.yml
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Terraform Destroy
+        run: |
+          # Add the terraform destroy command here
+          terraform init
+          terraform destroy -auto-approve
