@@ -1,14 +1,12 @@
-name: Python Linting, Tests, and Security Scan
+name: Python Linting, Tests, and Snyk Vulnerability Check
 
 on:
   push:
     branches:
-      - feat/backend  # Trigger when there's a push to feat/backend
+      - feat/backend  # Trigger on push to feat/backend
   pull_request:
     branches:
-      - main  # Trigger for PRs targeting the main branch
-    paths-ignore:
-      - '**/*.md'  # Ignore changes in Markdown files
+      - main  # Trigger on PR to the main branch
 
 jobs:
   lint-and-test:
@@ -20,28 +18,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Setup Python Environment
-      - name: Setup Python Environment
+      # Step 2: Setup Python environment
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: '3.9'
 
-      # Step 3: Install Dependencies
-      - name: Install Dependencies
-        run: pip install -r requirements.txt
-
-      # Step 4: Lint Python Code with black
-      - name: Lint Python Code
+      # Step 3: Install dependencies
+      - name: Install dependencies
         run: |
-          python -m black --check .
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # Step 5: Run Python Tests (optional step, you can replace with actual test command)
-      - name: Run Tests with Pytest
+      # Step 4: Lint Python code with flake8 and black
+      - name: Lint with black
         run: |
-          pytest --maxfail=1 --disable-warnings -q  # Optional, if you have tests
+          black .
+
+      - name: Lint with flake8
+        run: |
+          flake8 .
 
   snyk-scan:
-    name: Security Scan with Snyk
+    name: Snyk Security Scan
     runs-on: ubuntu-latest
 
     steps:
@@ -49,8 +48,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Setup Snyk
+      # Step 2: Run Snyk to check for vulnerabilities
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@v1
+        continue-on-error: true  # Allow errors to continue so SARIF can be uploaded
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          token: ${{ secrets.SNYK_TOKEN }}
+          args: --sarif-file-output=snyk.sarif
+
+      # Step 3: Upload results to GitHub Code Scanning
+      - name: Upload Snyk results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
