@@ -44,6 +44,8 @@ jobs:
     needs: [build_and_push]
     uses: ./.github/workflows/terraform-apply.yml
     secrets: inherit
+    with:
+      IMAGE_TAG: ${{ needs.build_and_push.outputs.IMAGE_TAG }}
 
   destroy:
     name: Terraform Destroy
