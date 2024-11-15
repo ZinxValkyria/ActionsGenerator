@@ -1,0 +1,28 @@
+name: Azure CLI Action
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  azure-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Execute Azure CLI Command
+        run: |
+          # Placeholder for your Azure CLI commands
+          # For example: az vm list --output table
+          az group list --output table
+
+      - name: Logout from Azure
+        run: |
+          az logout

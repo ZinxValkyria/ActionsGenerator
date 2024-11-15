@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+*.tfvars
 # C extensions
 *.so
 *.auto.tfvars
@@ -24,13 +25,11 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
-
 *.ini
 .env
 origin_cert.pem
 origin_private.pem
-
+node_modules/
 
 
 

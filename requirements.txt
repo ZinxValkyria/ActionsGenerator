@@ -3,6 +3,6 @@ PyYAML
 pytest
 newrelic
 python-dotenv
-flake8
+dotenv
 pytest
 black
