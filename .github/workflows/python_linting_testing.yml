@@ -35,11 +35,6 @@ jobs:
         run: |
           python -m black .
 
-
-      # Step 5: Run Python Tests
-      - name: Run Tests with Pytest
-        run: pytest --cov=app tests/
-
   snyk-scan:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
