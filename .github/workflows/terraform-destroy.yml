@@ -24,7 +24,7 @@ jobs:
       - name: Initialize Terraform
         run: terraform init
 
-      - name: Apply Terraform
+      - name: Destroy Terraform
         run: |
           terraform destroy -auto-approve -var="image_tag=${{ inputs.IMAGE_TAG }}"
         env:

@@ -1,6 +1,7 @@
 name: Terraform Apply
 
 on:
+
   workflow_call:
     inputs:
       IMAGE_TAG:
@@ -32,3 +33,4 @@ jobs:
 
       - name: Terraform Output
         run: terraform output
+
