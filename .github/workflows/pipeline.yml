@@ -1,9 +1,9 @@
-name: Pipeline_18_11
+name: MY NEW PIPELINE
 
 on:
-  push:
+  pull_request:
     branches:
-      - dev
+      - main
   workflow_dispatch:
 
 permissions:
@@ -28,6 +28,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_API_KEY }}
 
+          
       - name: Set Docker image tag
         id: docker_tag
         run: |
@@ -36,7 +37,19 @@ jobs:
           echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
           
       - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
+        env:
+          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }} # License Key from Secrets
+        run: |
+          # Create newrelic.ini dynamically
+          cat <<EOF > newrelic.ini
+          [newrelic]
+          license_key = $NEW_RELIC_LICENSE_KEY
+          app_name = My Application
+          log_level = info
+          distributed_tracing.enabled = true
+          EOF
+
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
         
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
@@ -59,7 +72,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var=secrets.auto.tfvars
+        run: terraform apply -auto-approve
 
   destroy:
     name: Terraform Destroy
