@@ -11,6 +11,7 @@ permissions:
   pull-requests: write
   id-token: write  # Add if you're using OIDC tokens for authentication
 
+
 jobs:
   build_and_push:
     name: Build and Push
@@ -58,6 +59,10 @@ jobs:
     name: Terraform Apply
     needs: [build_and_push]
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
