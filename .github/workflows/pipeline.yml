@@ -50,11 +50,11 @@ jobs:
         working-directory: terraform
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -62,7 +62,7 @@ jobs:
           
       - name: Populate secrets.auto.tfvars
         run: |
-          cat <<EOF >> secrets.auto.tfvars
+          cat <<EOF > secrets.auto.tfvars
           cloudflare_api_token = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
           cloudflare_zone_id = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
           new_relic_license_key = "${{ secrets.NEW_RELIC_LICENSE_KEY }}"
@@ -70,8 +70,13 @@ jobs:
           
       - name: Terraform Init
         run: terraform init
+
       - name: Terraform Apply
         run: terraform apply -var="IMAGE_TAG=${{ needs.build_and_push.outputs.IMAGE_TAG }}" --auto-approve
+
+      # Cleanup secrets.auto.tfvars to avoid persisting sensitive data
+      - name: Cleanup Secrets
+        run: rm -f secrets.auto.tfvars
 
   destroy:
     name: Terraform Destroy
@@ -81,14 +86,27 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
       - name: Populate secrets.auto.tfvars
         run: |
-          echo "cloudflare_api_token = \"${{ secrets.CLOUDFLARE_API_TOKEN }}\"" >> secrets.auto.tfvars
-          echo "cloudflare_zone_id = \"${{ secrets.CLOUDFLARE_ZONE_ID }}\"" >> secrets.auto.tfvars
-          echo "new_relic_license_key = \"${{ secrets.NEW_RELIC_LICENSE_KEY }}\"" >> secrets.auto.tfvars
+          cat <<EOF > secrets.auto.tfvars
+          cloudflare_api_token = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          cloudflare_zone_id = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
+          new_relic_license_key = "${{ secrets.NEW_RELIC_LICENSE_KEY }}"
+          EOF
 
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
+
+      # Cleanup secrets.auto.tfvars to avoid persisting sensitive data
+      - name: Cleanup Secrets
+        run: rm -f secrets.auto.tfvars
