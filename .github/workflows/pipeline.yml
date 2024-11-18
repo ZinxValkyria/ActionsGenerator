@@ -1,4 +1,4 @@
-name: MY NEW PIPELINE
+name: MY MAIN PIPELINE
 
 on:
   pull_request:
