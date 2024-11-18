@@ -1,4 +1,4 @@
-name: MY NEW PIPELINE
+name: Pipeline_18_11
 
 on:
   push:
