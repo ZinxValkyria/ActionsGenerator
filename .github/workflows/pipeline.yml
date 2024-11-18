@@ -9,7 +9,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  id-token: write  # Add if you're using OIDC tokens for authentication
+  id-token: write
 
 jobs:
   build_and_push:
@@ -28,7 +28,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_API_KEY }}
 
-          
       - name: Set Docker image tag
         id: docker_tag
         run: |
@@ -38,9 +37,8 @@ jobs:
           
       - name: Build Docker Image
         env:
-          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }} # License Key from Secrets
+          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
         run: |
-          # Create newrelic.ini dynamically
           cat <<EOF > newrelic.ini
           [newrelic]
           license_key = $NEW_RELIC_LICENSE_KEY
@@ -49,7 +47,7 @@ jobs:
           distributed_tracing.enabled = true
           EOF
 
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}.
         
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
@@ -60,30 +58,28 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash
-        working-directory: ./terraform
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+        working-directory: terraform
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1 # Change to your AWS region if needed
-
+          aws-region: us-east-1
       - name: Populate secrets.auto.tfvars
         run: |
-          echo "cloudflare_api_token = \"${{ secrets.CLOUDFLARE_API_TOKEN }}\"" >> secrets.auto.tfvars
-          echo "cloudflare_zone_id = \"${{ secrets.CLOUDFLARE_ZONE_ID }}\"" >> secrets.auto.tfvars
-          echo "new_relic_license_key = \"${{ secrets.NEW_RELIC_LICENSE_KEY }}\"" >> secrets.auto.tfvars
-
+          cat <<EOF >> secrets.auto.tfvars
+          cloudflare_api_token = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          cloudflare_zone_id = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
+          new_relic_license_key = "${{ secrets.NEW_RELIC_LICENSE_KEY }}"
+          EOF
       - name: Terraform Init
         run: terraform init
-
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var-file=secrets.auto.tfvars
+        run: terraform apply -var="IMAGE_TAG=${{ needs.build_and_push.outputs.IMAGE_TAG }}" --auto-approve
 
   destroy:
     name: Terraform Destroy
