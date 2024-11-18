@@ -11,7 +11,6 @@ permissions:
   pull-requests: write
   id-token: write  # Add if you're using OIDC tokens for authentication
 
-
 jobs:
   build_and_push:
     name: Build and Push
@@ -66,6 +65,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # Change to your AWS region if needed
 
       - name: Populate secrets.auto.tfvars
         run: |
