@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.11
+FROM python:3.11-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -26,7 +26,5 @@ EXPOSE 5000
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
-ENV NEW_RELIC_CONFIG_FILE=/app/newrelic.ini
-
 # Run the Flask application using New Relic
-CMD ["newrelic-admin", "run-program", "flask", "run"]
+CMD ["flask", "run"]
