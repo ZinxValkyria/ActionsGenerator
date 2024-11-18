@@ -72,7 +72,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var=secrets.auto.tfvars
+        run: terraform apply -auto-approve -var-file=secrets.auto.tfvars
 
   destroy:
     name: Terraform Destroy
