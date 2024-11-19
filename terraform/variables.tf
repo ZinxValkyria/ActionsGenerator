@@ -26,9 +26,3 @@ variable "IMAGE_TAG" {
   default = "latest"
 
 }
-
-variable "account_id" {
-  description = "New Relic account ID"
-  type        = string
-  sensitive   = true # Mark as sensitive
-}
