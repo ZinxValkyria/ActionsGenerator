@@ -31,29 +31,40 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# Attach policy for accessing Secrets Manager
 resource "aws_ecs_task_definition" "ecs_task" {
   family                   = "actions-generator-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256 # 256 CPU units (integer)
   memory                   = 512 # 512 MB memory (integer)
-  execution_role_arn       = "arn:aws:iam::188132471158:role/NewRelicECSTaskExecutionRole"
+execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
   container_definitions = jsonencode([
     {
       "name" : "actions-generator",
+      "image" : "zinx666/actions_generator:nwtest2",
       "image" : "zinx666/actions_generator:6ed9488",
       "essential" : true,
       "portMappings" : [
         {
           "containerPort" : 5000
         }
+      ],
+      "secrets" : [
+        {
+          "name" : "NEW_RELIC_CONFIG_FILE",  # Unique secret name for New Relic config
+          "valueFrom" : "arn:aws:secretsmanager:eu-west-1:188132471158:secret:newrelic_config"
+        }
+      ]
       ]
     }
   ])
 }
 
 
+
+# ECS Service to run the application
 resource "aws_ecs_service" "ecs_service" {
   name            = "actions-generator-service-2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
@@ -75,4 +86,3 @@ resource "aws_ecs_service" "ecs_service" {
 
   depends_on = [aws_lb.app_lb] # Ensure the load balancer is created before the ECS service
 }
-
