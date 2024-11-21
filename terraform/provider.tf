@@ -1,11 +1,11 @@
 terraform {
-  backend "s3" {
-    bucket = "actions-template-state"
-    key    = "global/mystatefile/terraform.tfstate"
-    region = "eu-west-2"
-    # Uncomment the next line if you want to use DynamoDB for state locking
-    # dynamodb_table = "state-lock"
-  }
+   backend "s3" {
+   bucket = "actions-template-state"
+   key    = "global/mystatefile/terraform.tfstate"
+   region = "eu-west-2"
+  # Uncomment the next line if you want to use DynamoDB for state locking
+  # dynamodb_table = "state-lock"
+   }
 
   required_providers {
     newrelic = {
