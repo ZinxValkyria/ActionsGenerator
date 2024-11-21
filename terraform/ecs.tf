@@ -31,13 +31,14 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# Attach policy for accessing Secrets Manager
 resource "aws_ecs_task_definition" "ecs_task" {
   family                   = "actions-generator-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256 # 256 CPU units (integer)
   memory                   = 512 # 512 MB memory (integer)
-  execution_role_arn       = "arn:aws:iam::188132471158:role/NewRelicECSTaskExecutionRole"
+execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
   container_definitions = jsonencode([
     {
@@ -54,6 +55,8 @@ resource "aws_ecs_task_definition" "ecs_task" {
 }
 
 
+
+# ECS Service to run the application
 resource "aws_ecs_service" "ecs_service" {
   name            = "actions-generator-service-2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
