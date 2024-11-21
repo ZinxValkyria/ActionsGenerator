@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.11-alpine
+FROM python:3.8-slim
 
 # Set the working directory in the container
 WORKDIR /app
@@ -13,6 +13,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
+# Copy the .env file into the container
+COPY .env /app/.env
+
+# Copy the New Relic configuration file
+COPY newrelic.ini /app/newrelic.ini
+
 # Expose port 5000 for the Flask application
 EXPOSE 5000
 
@@ -21,5 +27,5 @@ ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
 
-# Run the Flask application
-CMD ["flask", "run"]
+# Run the Flask application with New Relic monitoring
+CMD ["newrelic-admin", "run-program", "python3", "app.py"]
