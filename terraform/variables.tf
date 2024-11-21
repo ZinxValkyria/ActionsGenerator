@@ -27,8 +27,8 @@ variable "IMAGE_TAG" {
 
 }
 
-variable "account_id" {
-  description = "New Relic account ID"
-  type        = string
-  sensitive   = true # Mark as sensitive
-}
+# variable "account_id" {
+#   description = "New Relic account ID"
+#   type        = string
+#   sensitive   = true # Mark as sensitive
+# }
