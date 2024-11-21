@@ -22,7 +22,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-                 # Create newrelic.ini from secret
+         # Create newrelic.ini from secret
       - name: Create newrelic.ini
         run: echo "${{ secrets.NEW_RELIC_CONFIG2 }}" > newrelic.ini
         
