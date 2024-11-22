@@ -6,7 +6,10 @@ YAML script files from the 'scripts' directory.
 
 import os
 from flask import Flask, render_template, send_from_directory, abort
+import newrelic.agent  # Import New Relic Agent
 from dotenv import load_dotenv
+
+newrelic.agent.initialize('newrelic.ini')  # Ensure this points to your actual `newrelic.ini` file
 
 app = Flask(__name__, template_folder="templatesv2")
 load_dotenv()
