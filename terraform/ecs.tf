@@ -113,3 +113,4 @@ resource "aws_ecs_service" "ecs_service" {
 
   depends_on = [aws_lb.app_lb] # Ensure the load balancer is created before the ECS service
 }
+
