@@ -42,47 +42,12 @@ resource "aws_ecs_task_definition" "ecs_task" {
   container_definitions = jsonencode([
     {
       "name" : "actions-generator",
-      "image" : "zinx666/actions_generator:test3",
+      "image" : "zinx666/actions_generator:6ed9488",
       "essential" : true,
       "portMappings" : [
         {
           "containerPort" : 5000
         }
-      ]
-    },
-    {
-      "name" : "newrelic-infra", # Ensure the name is specified
-      "image" : "newrelic/nri-ecs:1.12.2",
-      "cpu" : 256,
-      "memoryReservation" : 512,
-      "environment" : [
-        {
-          "name" : "NRIA_OVERRIDE_HOST_ROOT",
-          "value" : ""
-        },
-        {
-          "name" : "NRIA_IS_FORWARD_ONLY",
-          "value" : "true"
-        },
-        {
-          "name" : "FARGATE",
-          "value" : "true"
-        },
-        {
-          "name" : "NRIA_PASSTHROUGH_ENVIRONMENT",
-          "value" : "ECS_CONTAINER_METADATA_URI,ECS_CONTAINER_METADATA_URI_V4,FARGATE"
-        },
-        {
-          "name" : "NRIA_CUSTOM_ATTRIBUTES",
-          "value" : "{\"nrDeployMethod\":\"downloadPage\"}"
-        }
-      ],
-      "secrets" : [
-        {
-          "name" : "NRIA_LICENSE_KEY",
-          "valueFrom" : "arn:aws:ssm:eu-west-1:188132471158:parameter/newrelic-infra/ecs/license-key"
-        }
-
       ]
     }
   ])
