@@ -2,4 +2,4 @@ Flask
 PyYAML
 pytest
 newrelic
-pytest
+python-dotenv

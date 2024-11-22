@@ -31,30 +31,63 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Create ECS Task Definition for the container
 resource "aws_ecs_task_definition" "ecs_task" {
   family                   = "actions-generator-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "256" # 256 CPU units
-  memory                   = "512" # 512 MB memory
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  cpu                      = 256 # 256 CPU units (integer)
+  memory                   = 512 # 512 MB memory (integer)
+  execution_role_arn       = "arn:aws:iam::188132471158:role/NewRelicECSTaskExecutionRole"
 
-  container_definitions = <<DEFINITION
-[
-  {
-    "name": "actions-generator",
-    "image": "zinx666/actions_generator:811a633",
-    "essential": true,
-    "portMappings": [
-      {
-        "containerPort": 5000
-      }
-    ]
-  }
-]
-DEFINITION
+  container_definitions = jsonencode([
+    {
+      "name" : "actions-generator",
+      "image" : "zinx666/actions_generator:test3",
+      "essential" : true,
+      "portMappings" : [
+        {
+          "containerPort" : 5000
+        }
+      ]
+    },
+    {
+      "name" : "newrelic-infra", # Ensure the name is specified
+      "image" : "newrelic/nri-ecs:1.12.2",
+      "cpu" : 256,
+      "memoryReservation" : 512,
+      "environment" : [
+        {
+          "name" : "NRIA_OVERRIDE_HOST_ROOT",
+          "value" : ""
+        },
+        {
+          "name" : "NRIA_IS_FORWARD_ONLY",
+          "value" : "true"
+        },
+        {
+          "name" : "FARGATE",
+          "value" : "true"
+        },
+        {
+          "name" : "NRIA_PASSTHROUGH_ENVIRONMENT",
+          "value" : "ECS_CONTAINER_METADATA_URI,ECS_CONTAINER_METADATA_URI_V4,FARGATE"
+        },
+        {
+          "name" : "NRIA_CUSTOM_ATTRIBUTES",
+          "value" : "{\"nrDeployMethod\":\"downloadPage\"}"
+        }
+      ],
+      "secrets" : [
+        {
+          "name" : "NRIA_LICENSE_KEY",
+          "valueFrom" : "arn:aws:ssm:eu-west-1:188132471158:parameter/newrelic-infra/ecs/license-key"
+        }
+
+      ]
+    }
+  ])
 }
+
 
 resource "aws_ecs_service" "ecs_service" {
   name            = "actions-generator-service-2"
