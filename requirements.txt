@@ -3,5 +3,3 @@ PyYAML
 pytest
 newrelic
 python-dotenv
-dotenv
-
