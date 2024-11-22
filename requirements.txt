@@ -4,6 +4,4 @@ pytest
 newrelic
 python-dotenv
 dotenv
-pytest
-black
 
