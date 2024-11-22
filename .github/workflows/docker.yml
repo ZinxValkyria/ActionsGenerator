@@ -1,46 +1,46 @@
-name: MY DOCKER NEW RELIC TEST
+name: Docker Pipeline
 
 on:
-  pull_request:
+  push:
     branches:
       - main
-  workflow_dispatch:
 
 permissions:
   contents: write
-  pull-requests: write
+  id-token: write
 
 jobs:
   build_and_push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
+    outputs:
+      IMAGE_TAG: ${{ steps.docker_tag.outputs.IMAGE_TAG }}
 
     steps:
-      # Checkout source code
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # Create newrelic.ini from secret stored in GitHub Secrets
       - name: Create newrelic.ini
         run: echo "${{ secrets.NEW_RELIC_CONFIG2 }}" > newrelic.ini
 
-      # Login to Docker Hub
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_API_KEY }}
 
-      # Set Docker image tag using GitHub SHA
-      - name: Set Docker Image Tag
+      - name: Set Docker image tag
         id: docker_tag
-        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        run: |
+          IMAGE_TAG="${GITHUB_SHA::7}"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
 
-      # Build Docker Image
       - name: Build Docker Image
+        env:
+          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
 
-      # Push Docker Image
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
