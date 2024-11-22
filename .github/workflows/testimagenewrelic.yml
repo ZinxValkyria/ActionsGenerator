@@ -1,4 +1,4 @@
-name: MY NEW PIPELINE
+name: MY DOCKER NEW RELIC TEST
 
 on:
   pull_request:
