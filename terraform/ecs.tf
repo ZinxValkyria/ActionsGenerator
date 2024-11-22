@@ -31,14 +31,13 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Attach policy for accessing Secrets Manager
 resource "aws_ecs_task_definition" "ecs_task" {
   family                   = "actions-generator-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256 # 256 CPU units (integer)
   memory                   = 512 # 512 MB memory (integer)
-execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = "arn:aws:iam::188132471158:role/NewRelicECSTaskExecutionRole"
 
   container_definitions = jsonencode([
     {
@@ -50,48 +49,11 @@ execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
           "containerPort" : 5000
         }
       ]
-    },
-    {
-      "name" : "newrelic-infra", # Ensure the name is specified
-      "image" : "newrelic/nri-ecs:1.12.2",
-      "cpu" : 256,
-      "memoryReservation" : 512,
-      "environment" : [
-        {
-          "name" : "NRIA_OVERRIDE_HOST_ROOT",
-          "value" : ""
-        },
-        {
-          "name" : "NRIA_IS_FORWARD_ONLY",
-          "value" : "true"
-        },
-        {
-          "name" : "FARGATE",
-          "value" : "true"
-        },
-        {
-          "name" : "NRIA_PASSTHROUGH_ENVIRONMENT",
-          "value" : "ECS_CONTAINER_METADATA_URI,ECS_CONTAINER_METADATA_URI_V4,FARGATE"
-        },
-        {
-          "name" : "NRIA_CUSTOM_ATTRIBUTES",
-          "value" : "{\"nrDeployMethod\":\"downloadPage\"}"
-        }
-      ],
-      "secrets" : [
-        {
-          "name" : "NRIA_LICENSE_KEY",
-          "valueFrom" : "arn:aws:ssm:eu-west-1:188132471158:parameter/newrelic-infra/ecs/license-key"
-        }
-
-      ]
     }
   ])
 }
 
 
-
-# ECS Service to run the application
 resource "aws_ecs_service" "ecs_service" {
   name            = "actions-generator-service-2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
@@ -113,4 +75,3 @@ resource "aws_ecs_service" "ecs_service" {
 
   depends_on = [aws_lb.app_lb] # Ensure the load balancer is created before the ECS service
 }
-
