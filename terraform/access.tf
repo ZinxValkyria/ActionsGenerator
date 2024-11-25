@@ -11,8 +11,9 @@ resource "aws_security_group" "ecs_sg" {
     description = "Allow HTTP traffic"
   }
 
+# Allow triaffic on on port 5000
   ingress {
-    from_port   = 5000 # Allow traffic on port 5000
+    from_port   = 5000 
     to_port     = 5000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -26,6 +27,7 @@ resource "aws_security_group" "ecs_sg" {
     description = "Allow HTTPS traffic"
   }
 
+# Allow everyone to exit the instance from any port
   egress {
     from_port   = 0
     to_port     = 0
@@ -46,7 +48,7 @@ resource "aws_lb_target_group" "ecs_target_group" {
   port        = 5000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
-  target_type = "ip" # Change target type to IP
+  target_type = "ip"
 
   health_check {
     path                = "/"
@@ -76,6 +78,7 @@ resource "aws_lb" "app_lb" {
   }
 }
 
+# Listener for the Load Balancer on http
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = 80
@@ -87,6 +90,7 @@ resource "aws_lb_listener" "http" {
   }
 }
 
+# Listener for the load balancer on https
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = 443
