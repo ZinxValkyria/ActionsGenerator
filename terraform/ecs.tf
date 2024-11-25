@@ -31,18 +31,20 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# This resource creates the task defination for the ECS service
+# This includes the container definition and the role to interact with this resource
 resource "aws_ecs_task_definition" "ecs_task" {
   family                   = "actions-generator-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256 # 256 CPU units (integer)
   memory                   = 512 # 512 MB memory (integer)
-  execution_role_arn       = "arn:aws:iam::188132471158:role/NewRelicECSTaskExecutionRole"
+  execution_role_arn       = "arn:aws:iam::188132471158:role/ecsTaskExecutionRole"
 
   container_definitions = jsonencode([
     {
       "name" : "actions-generator",
-      "image" : "zinx666/actions_generator:6ed9488",
+      "image" : "zinx666/actions_generator:69e7a3d",
       "essential" : true,
       "portMappings" : [
         {
@@ -53,7 +55,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
   ])
 }
 
-
+# This creates the ECS service
 resource "aws_ecs_service" "ecs_service" {
   name            = "actions-generator-service-2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
@@ -73,5 +75,5 @@ resource "aws_ecs_service" "ecs_service" {
     container_port   = 5000
   }
 
-  depends_on = [aws_lb.app_lb] # Ensure the load balancer is created before the ECS service
+  depends_on = [aws_lb.app_lb] # This ensure the load balancer is created before the ECS service
 }

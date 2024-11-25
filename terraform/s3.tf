@@ -1,16 +1,12 @@
-
-
+# Create an S3 bucket for storing Terraform state
 # resource "aws_s3_bucket" "actions_template_state" {
 #   bucket = "actions-template-state"
 #   tags = {
-#     Name = " Github Actions Template State Bucket"
+#     Name = "Github Actions Template State Bucket"
 #   }
-
-
 # }
 
-
-
+# Enable server-side encryption for the S3 bucket
 # resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
 #   bucket = aws_s3_bucket.actions_template_state.id
 
@@ -21,7 +17,7 @@
 #   }
 # }
 
-
+# Add a lifecycle configuration to manage object expiration in the S3 bucket
 # resource "aws_s3_bucket_lifecycle_configuration" "actions_template_lifecycle" {
 #   bucket = aws_s3_bucket.actions_template_state.id
 
@@ -30,17 +26,12 @@
 #     status = "Enabled"
 
 #     expiration {
-#       days = 30
-#     }
-#   }
-# }
-
-
-# resource "aws_s3_bucket_versioning" "actions_template_versioning" {
-#   bucket = aws_s3_bucket.actions_template_state.id
-# }
 #       days = 30 # Adjust as needed
 #     }
 #   }
 # }
-# >>>>>>> dev
+
+# Enable versioning for the S3 bucket
+# resource "aws_s3_bucket_versioning" "actions_template_versioning" {
+#   bucket = aws_s3_bucket.actions_template_state.id
+# }
