@@ -55,7 +55,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
   ])
 }
 
-
+# This creates the ECS service
 resource "aws_ecs_service" "ecs_service" {
   name            = "actions-generator-service-2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
@@ -75,5 +75,5 @@ resource "aws_ecs_service" "ecs_service" {
     container_port   = 5000
   }
 
-  depends_on = [aws_lb.app_lb] # Ensure the load balancer is created before the ECS service
+  depends_on = [aws_lb.app_lb] # This ensure the load balancer is created before the ECS service
 }

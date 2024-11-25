@@ -1,7 +1,9 @@
+# Specify the AWS provider and region
 provider "aws" {
   region = "eu-west-1" # Set your desired AWS region
 }
 
+# Create a VPC
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -10,8 +12,6 @@ resource "aws_vpc" "main" {
     Name = "Actions_Template-tf-vpc"
   }
 }
-
-
 
 # Create Public Subnet 1
 resource "aws_subnet" "public_sub1" {
@@ -37,7 +37,7 @@ resource "aws_subnet" "public_sub2" {
   }
 }
 
-# Define a private subnet
+# Create a Private Subnet
 resource "aws_subnet" "private_sub" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.0/24"
@@ -48,16 +48,14 @@ resource "aws_subnet" "private_sub" {
   }
 }
 
-
-# Define an Elastic IP for the NAT Gateway
+# Allocate an Elastic IP for the NAT Gateway
 resource "aws_eip" "nat_eip" {
-
   tags = {
     Name = "NAT Elastic IP"
   }
 }
 
-# Define the Internet Gateway
+# Create an Internet Gateway
 resource "aws_internet_gateway" "actions_template_internet_gateway" {
   vpc_id = aws_vpc.main.id
 
@@ -65,4 +63,3 @@ resource "aws_internet_gateway" "actions_template_internet_gateway" {
     Name = "Actions Template Internet Gateway"
   }
 }
-
