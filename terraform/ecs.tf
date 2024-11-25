@@ -31,64 +31,31 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# This resource creates the task defination for the ECS service
+# This includes the container definition and the role to interact with this resource
 resource "aws_ecs_task_definition" "ecs_task" {
   family                   = "actions-generator-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256 # 256 CPU units (integer)
   memory                   = 512 # 512 MB memory (integer)
-  execution_role_arn       = "arn:aws:iam::188132471158:role/NewRelicECSTaskExecutionRole"
+  execution_role_arn       = "arn:aws:iam::188132471158:role/ecsTaskExecutionRole"
 
   container_definitions = jsonencode([
     {
       "name" : "actions-generator",
-      "image" : "zinx666/actions_generator:test3",
+      "image" : "zinx666/actions_generator:69e7a3d",
       "essential" : true,
       "portMappings" : [
         {
           "containerPort" : 5000
         }
       ]
-    },
-    {
-      "name" : "newrelic-infra", # Ensure the name is specified
-      "image" : "newrelic/nri-ecs:1.12.2",
-      "cpu" : 256,
-      "memoryReservation" : 512,
-      "environment" : [
-        {
-          "name" : "NRIA_OVERRIDE_HOST_ROOT",
-          "value" : ""
-        },
-        {
-          "name" : "NRIA_IS_FORWARD_ONLY",
-          "value" : "true"
-        },
-        {
-          "name" : "FARGATE",
-          "value" : "true"
-        },
-        {
-          "name" : "NRIA_PASSTHROUGH_ENVIRONMENT",
-          "value" : "ECS_CONTAINER_METADATA_URI,ECS_CONTAINER_METADATA_URI_V4,FARGATE"
-        },
-        {
-          "name" : "NRIA_CUSTOM_ATTRIBUTES",
-          "value" : "{\"nrDeployMethod\":\"downloadPage\"}"
-        }
-      ],
-      "secrets" : [
-        {
-          "name" : "NRIA_LICENSE_KEY",
-          "valueFrom" : "arn:aws:ssm:eu-west-1:188132471158:parameter/newrelic-infra/ecs/license-key"
-        }
-
-      ]
     }
   ])
 }
 
-
+# This creates the ECS service
 resource "aws_ecs_service" "ecs_service" {
   name            = "actions-generator-service-2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
@@ -108,6 +75,6 @@ resource "aws_ecs_service" "ecs_service" {
     container_port   = 5000
   }
 
-  depends_on = [aws_lb.app_lb] # Ensure the load balancer is created before the ECS service
+  depends_on = [aws_lb.app_lb] # This ensure the load balancer is created before the ECS service
 }
 

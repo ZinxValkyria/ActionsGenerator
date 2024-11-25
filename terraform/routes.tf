@@ -1,4 +1,4 @@
-
+# Create a route table for the public subnet
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.main.id
 
@@ -8,11 +8,13 @@ resource "aws_route_table" "public_rt" {
   }
 }
 
+# Associate the public route table with Public Subnet 1
 resource "aws_route_table_association" "rt_asc" {
   subnet_id      = aws_subnet.public_sub1.id
   route_table_id = aws_route_table.public_rt.id
 }
 
+# Create a route table for the private subnet
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
 
@@ -26,7 +28,7 @@ resource "aws_route_table" "private_rt" {
   }
 }
 
-# Associate the route table with the private subnet
+# Associate the private route table with the private subnet
 resource "aws_route_table_association" "private_association" {
   subnet_id      = aws_subnet.private_sub.id
   route_table_id = aws_route_table.private_rt.id

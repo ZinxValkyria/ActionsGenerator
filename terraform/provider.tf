@@ -1,43 +1,37 @@
+# Configure Terraform backend using an S3 bucket
 terraform {
-#  backend "s3" {
-  #  bucket = "actions-template-state"
-  #  key    = "global/mystatefile/terraform.tfstate"
-  #  region = "eu-west-2"
+  backend "s3" {
+    bucket = "actions-template-state" # Name of the S3 bucket to store the state file
+    key    = "global/mystatefile/terraform.tfstate" # Path to the state file within the bucket
+    region = "eu-te-2" # AWS region for the S3 bucket
+
     # Uncomment the next line if you want to use DynamoDB for state locking
     # dynamodb_table = "state-lock"
-#  }
-  
+  }
+
   required_providers {
-    newrelic = {
-      source = "newrelic/newrelic"
-    }
     cloudflare = {
-      source  = "cloudflare/cloudflare" # Correct source address for Cloudflare
-      version = "~> 3.0"                # Specify the version you want
+      source  = "cloudflare/cloudflare"
+      version = "~> 3.0"               
     }
     aws = {
-      source  = "hashicorp/aws" # AWS provider remains as it is
-      version = "~> 5.0"        # Specify the version you want
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
     }
   }
 }
 
-# Configure the New Relic provider
-provider "newrelic" {
-  account_id = var.account_id
-  api_key    = var.new_relic_license_key # Usually prefixed with 'NRAK'
-  region     = "EU"                      # Valid regions are US and EU
-}
-
+# Configure the Cloudflare provider
 provider "cloudflare" {
-  api_token = var.cloudflare_api_token
+  api_token = var.cloudflare_api_token 
 }
 
+# Create a DNS record in Cloudflare
 resource "cloudflare_record" "app_record" {
-  zone_id = var.cloudflare_zone_id # Reference a variable for Zone ID
-  name    = "apple"                # This will create app.zinxvalkyria.space
-  value   = aws_lb.app_lb.dns_name # Points to the ALB DNS name
-  type    = "CNAME"                # Change to CNAME since you're pointing to a DNS name
-  ttl     = 300                    # Time to live in seconds
-  proxied = false                  # Set to true if you want Cloudflare's proxy features
+  zone_id = var.cloudflare_zone_id       #
+  name    = "app"                     # DNS record name
+  value   = aws_lb.app_lb.dns_name       # Value of the DNS record
+  type    = "CNAME"                     # Type of the DNS record
+  ttl     = 300                          # Time-to-live for the DNS record, in seconds
+  proxied = false                        # Set to true to enable Cloudflare's proxying features
 }

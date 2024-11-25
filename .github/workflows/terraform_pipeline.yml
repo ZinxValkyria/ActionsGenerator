@@ -1,0 +1,50 @@
+name: Terraform Pipeline
+
+on:
+  workflow_run:
+    workflows:
+      - Docker Pipeline
+    types:
+      - completed
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Populate secrets.auto.tfvars
+        run: |
+          cat <<EOF > secrets.auto.tfvars
+          cloudflare_api_token = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          cloudflare_zone_id = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
+          new_relic_license_key = "${{ secrets.NEW_RELIC_LICENSE_KEY }}"
+          EOF
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -var="IMAGE_TAG=${{ github.event.workflow_run.outputs.IMAGE_TAG }}" --auto-approve
+
+      - name: Cleanup Secrets
+        run: rm -f secrets.auto.tfvars
