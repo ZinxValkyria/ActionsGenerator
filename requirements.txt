@@ -3,3 +3,4 @@ PyYAML
 pytest
 newrelic
 python-dotenv
+flask

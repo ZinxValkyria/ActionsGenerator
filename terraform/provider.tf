@@ -1,10 +1,10 @@
 # Configure Terraform backend using an S3 bucket
 terraform {
   backend "s3" {
-    bucket = "actions-template-state" # Name of the S3 bucket to store the state file
-    key    = "global/mystatefile/terraform.tfstate" # Path to the state file within the bucket
-    region = "eu-te-2" # AWS region for the S3 bucket
-
+    bucket = "actions-template-state"
+    key    = "global/mystatefile/terraform.tfstate"
+    region = "eu-west-2"
+    
     # Uncomment the next line if you want to use DynamoDB for state locking
     # dynamodb_table = "state-lock"
   }
