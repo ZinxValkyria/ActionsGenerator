@@ -78,7 +78,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -var="IMAGE_TAG=${{ needs.build_and_push.outputs.IMAGE_TAG }}" --auto-approve
+        run: terraform apply -var="IMAGE_TAG=${{needs.build_and_push.outputs.IMAGE_TAG}}" --auto-approve
 
       - name: Cleanup Secrets
         run: rm -f secrets.auto.tfvars
