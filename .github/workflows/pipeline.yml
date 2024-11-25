@@ -22,7 +22,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-         # Create newrelic.ini from secret
       - name: Create newrelic.ini
         run: echo "${{ secrets.NEW_RELIC_CONFIG2 }}" > newrelic.ini
         
@@ -45,7 +44,6 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
 
-        
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
 
@@ -55,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: terraform
+        working-directory: terraform  # Ensures all terraform steps run inside the terraform directory
 
     steps:
       - name: Checkout Repository
@@ -82,7 +80,6 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -var="IMAGE_TAG=${{ needs.build_and_push.outputs.IMAGE_TAG }}" --auto-approve
 
-      # Cleanup secrets.auto.tfvars to avoid persisting sensitive data
       - name: Cleanup Secrets
         run: rm -f secrets.auto.tfvars
 
@@ -90,6 +87,10 @@ jobs:
     name: Terraform Destroy
     needs: [apply]
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform  # Ensures all terraform steps run inside the terraform directory
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -115,6 +116,6 @@ jobs:
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
 
-      # Cleanup secrets.auto.tfvars to avoid persisting sensitive data
       - name: Cleanup Secrets
         run: rm -f secrets.auto.tfvars
+
