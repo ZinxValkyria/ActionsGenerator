@@ -21,8 +21,8 @@ variable "new_relic_license_key" {
   sensitive   = true # Mark as sensitive
 }
 
-variable "IMAGE_TAG" {
-  type    = string
-  default = "latest"
-
-}
+# variable "account_id" {
+#   description = "New Relic account ID"
+#   type        = string
+#   sensitive   = true # Mark as sensitive
+# }
