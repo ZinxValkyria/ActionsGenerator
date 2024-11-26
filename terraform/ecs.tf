@@ -44,7 +44,7 @@ resource "aws_ecs_task_definition" "ecs_task" {
   container_definitions = jsonencode([
     {
       "name" : "actions-generator",
-      "image" : "zinx666/actions_generator:69e7a3d",
+      "image" : "zinx666/actions_generator:${var.image_tag}",
       "essential" : true,
       "portMappings" : [
         {
