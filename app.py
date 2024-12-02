@@ -7,10 +7,10 @@ YAML script files from the 'scripts' directory.
 import os
 from flask import Flask, render_template, send_from_directory, abort
 import newrelic.agent
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 app = Flask(__name__, template_folder="templatesv2")
-load_dotenv()
+# load_dotenv()
 
 #  YAML scripts are stored
 SCRIPTS_DIR = os.path.join(os.getcwd(), "scripts")
@@ -116,7 +116,7 @@ def gh_pages():
     return render_template("custom.html")
 
 
-#Route to fetch YAML files from local storage
+#  Route to fetch YAML files from local storage
 @app.route("/scripts/<path:filename>", methods=["GET"])
 def fetch_yaml(filename):
     """
