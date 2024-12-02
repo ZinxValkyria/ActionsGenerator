@@ -1,20 +1,27 @@
+// Task handling
 function handleTaskChange() {
     const task = document.getElementById('task').value;
     const deployList = document.getElementById('deployList');
     const scriptOutput = document.getElementById('scriptOutput');
 
-    if (task === 'deploy') {
-        deployList.style.display = 'block';
-        scriptOutput.textContent = ''; // Clear previous output
-    } else {
-        deployList.style.display = 'none';
-        if (task === '/scripts/azure/azure_cli.yaml') {
-            loadYaml(task); // Load Azure CLI YAML when selected
-        } else {
-            scriptOutput.textContent = ''; // Clear output for other tasks
-        }
+    switch (task) {
+        case 'deploy':
+            deployList.style.display = 'block';
+            scriptOutput.textContent = ''; // Clear previous output
+            break;
+
+        case '/scripts/azure/azure_cli.yaml':
+        case '/scripts/azure/login.yaml':
+        case '/scripts/azure/logs.yaml':
+            loadYaml(task); // Pass the task value to loadYaml
+            deployList.style.display = 'none';
+            break;
+
+        default:
+            console.warn('Unhandled task:', task);
     }
 }
+
 
 function copyPre() {
     const preText = document.getElementById("scriptOutput").textContent;

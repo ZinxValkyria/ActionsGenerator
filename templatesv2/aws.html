@@ -8,12 +8,12 @@
         <h2>Tasks and Workflows</h2><br>
         <form id="awsForm" onsubmit="return false;">
             <label for="task">Select AWS Task/Action for GitHub Actions:</label>
-            <select id="task" name="task" required onchange="handleTaskChange()">
+            <select id="task" name="task" required onchange="handleTaskChange(this.value)">
                 <option value="">Select Action</option>
-                <option value="login">Login</option>
+                <option value="/scripts/aws/login.yaml">Login</option>
                 <option value="deploy">Deploy</option>
                 <option value="/scripts/aws/aws_cli.yaml">AWS CLI commands</option>
-                <option value="logs">Logs</option>
+                <option value="/scripts/aws/logs.yaml">Logs</option>
             </select><br><br>
 
             <!-- Deployment section (hidden by default) -->
