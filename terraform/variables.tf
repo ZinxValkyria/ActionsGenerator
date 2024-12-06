@@ -25,8 +25,4 @@ variable "new_relic_license_key" {
 #   description = "New Relic account ID"
 #   type        = string
 #   sensitive   = true # Mark as sensitive
-<<<<<<< HEAD
 # }
-=======
-# }
->>>>>>> f3cf305 (s3 backend)
