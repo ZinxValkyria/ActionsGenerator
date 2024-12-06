@@ -3,44 +3,124 @@
 {% block title %}Custom Page{% endblock %}
 
 {% block content %}
-<h1>Custom Workflow</h1>
-      <div class="container">
-        <!-- Left Section: Form -->
-        <div class="left-section">
-            <h2>Create a custom Workflow</h2><br>
-
-                <div id="custom_flow">
-                    <label for="os">Operating System:</label>
-                    <select id="os" name="os">
-                        <option value="ubuntu">Ubuntu Linux</option>
-                        <option value="windows">Windows</option>
-                    </select><br><br>
-
-                    <label for="triggers">Triggers:</label>
-                    <br><input type="checkbox" id="push" name="triggers" value="push"> Push<br>
-                    <input type="checkbox" id="pull_request" name="triggers" value="pull_request"> Pull Request<br>
-                    <input type="checkbox" id="workflow_call" name="triggers" value="workflow_call"> Workflow Call<br>
-                    <input type="checkbox" id="workflow_dispatch" name="triggers" value="workflow_dispatch"> Workflow Dispatch<br>
-                    <br>
-                </div>
-</form>
-</div>
-
-        <!-- Middle Section: YAML Script Output -->
-        <div class="middle-section">
-            <h2>YAML Script</h2>
-            <pre id="scriptOutput"></pre>
-            <button type="submit" class="button" onclick="copyPre()" >Copy</button>
-            <img src="/static/images/custom.png" alt="AWS Icon"> 
-
-
+  <h1>Custom Workflow</h1>
+  <div class="container">
+    <!-- Left Section: Form -->
+    <div class="left-section">
+      <h2>Create a custom Workflow</h2>
+      <form id="customForm" onsubmit="return false;">
+        <div class="form-group">
+          <!-- Workflow Name -->
+          <label for="workflow_name">Workflow name:</label>
+          <input type="text" id="workflow_name" name="workflow_name" required>
         </div>
 
-        <!-- Right Section: Future Content -->
-         
-        <div class="right-section"> <h2>Additional Configurations</h2>
-            <p>Future content for more settings can go here.</p>
+        <div class="form-group">
+          <!-- Runs-on (Environment) -->
+          <label for="runs_on">Runs on:</label>
+          <select id="runs_on" name="runs_on" required>
+            <option value="ubuntu-latest">Ubuntu Linux</option>
+            <option value="windows-latest">Windows</option>
+          </select>
         </div>
+
+        <div class="form-group">
+          <!-- Triggers -->
+          <label for="triggers">Triggers:</label>
+          <div>
+            <input type="checkbox" id="push" name="triggers" value="push"> Push
+            <input type="checkbox" id="pull_request" name="triggers" value="pull_request"> Pull Request
+            <input type="checkbox" id="workflow_call" name="triggers" value="workflow_call"> Workflow Call
+            <input type="checkbox" id="workflow_dispatch" name="triggers" value="workflow_dispatch"> Workflow Dispatch
+          </div>
+        </div>
+
+        <div class="form-group">
+          <!-- Job Name -->
+          <label for="job_name">Job Name:</label>
+          <input type="text" id="job_name" name="job_name" required>
+        </div>
+
+        <div class="form-group">
+          <!-- Steps -->
+          <label for="steps">Steps:</label>
+          <textarea id="steps" name="steps" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <!-- Action Name -->
+          <label for="uses_action">Action:</label>
+          <input type="text" id="uses_action" name="uses_action" required>
+        </div>
+
+        <div class="form-group">
+          <!-- Run Command -->
+          <label for="run">Run command:</label>
+          <input type="text" id="run" name="run" required>
+        </div>
+
+        <button type="submit" class="button" onclick="generateYaml()">Generate YAML</button>
+      </form>
     </div>
-    
+
+    <!-- Middle Section: YAML Script Output -->
+    <div class="middle-section">
+      <h2>YAML Script</h2>
+      <pre id="scriptOutput"></pre>
+      <button type="button" class="button" onclick="copyYaml()">Copy YAML</button>
+    </div>
+
+    <!-- Right Section: Additional Configurations (future content) -->
+    <div class="right-section">
+      <h2>Additional Configurations</h2>
+      <p>Future content for more settings can go here.</p>
+    </div>
+  </div>
+  <script src="/static/js/custom.js"></script>
+
+  <style>
+    .container {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+    }
+    .left-section, .middle-section, .right-section {
+      width: 30%;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+    label {
+      margin-bottom: 5px;
+    }
+    input, select, textarea, button {
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    textarea {
+      resize: vertical;
+      height: 100px;
+    }
+    button {
+      align-self: flex-start;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 {% endblock %}

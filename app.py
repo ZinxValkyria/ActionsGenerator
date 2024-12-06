@@ -5,7 +5,7 @@ YAML script files from the 'scripts' directory.
 """
 
 import os
-from flask import Flask, render_template, send_from_directory, abort
+from flask import Flask, render_template, send_from_directory, abort, jsonify, request
 import newrelic.agent
 # from dotenv import load_dotenv
 
@@ -136,6 +136,52 @@ def fetch_yaml(filename):
 
     # If the file doesn't exist, return error
     return abort(404, description="File not found")
+
+
+@app.route('/generate_yaml', methods=['POST'])
+def generate_yaml():
+    # Get form data from the frontend
+    workflow_name = request.form.get('workflow_name')
+    triggers = request.form.getlist('triggers')  # List of selected triggers
+    job_name = request.form.get('job_name')
+    runs_on = request.form.get('runs_on')
+    steps = request.form.get('steps')
+    uses_action = request.form.get('uses_action')
+    run_command = request.form.get('run')
+
+    # Prepare the trigger events string
+    trigger_events = "\n  ".join([f"{trigger}:" for trigger in triggers])
+
+    # Construct the YAML template
+    yaml_template = """
+name: {{workflow_name}}
+
+on:
+  {{trigger_events}}
+
+jobs:
+  {{job_name}}:
+    runs-on: {{runs_on}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: {{uses_action}}
+        run: |
+          {{run_command}}
+"""
+
+    # Replace the placeholders with the actual values
+    yaml_content = yaml_template.replace("{{workflow_name}}", workflow_name) \
+        .replace("{{trigger_events}}", trigger_events) \
+        .replace("{{job_name}}", job_name) \
+        .replace("{{runs_on}}", runs_on) \
+        .replace("{{steps}}", steps) \
+        .replace("{{uses_action}}", uses_action) \
+        .replace("{{run_command}}", run_command)
+
+    # Return the YAML content as JSON
+    return jsonify({"yaml": yaml_content})
 
 
 if __name__ == "__main__":

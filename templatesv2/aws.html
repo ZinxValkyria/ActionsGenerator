@@ -6,7 +6,6 @@
     <!-- Left Section: Form -->
     <div class="left-section">
         <h2>Tasks and Workflows</h2><br>
-        <form id="awsForm" onsubmit="return false;">
             <label for="task">Select AWS Task/Action for GitHub Actions:</label>
             <select id="task" name="task" required onchange="handleTaskChange(this.value)">
                 <option value="">Select Action</option>
@@ -29,7 +28,6 @@
                     <option value="/scripts/aws/lambda.yaml">AWS Lambda</option>
                 </select><br><br>
             </div>
-        </form>
     </div>
 
     <!-- Middle Section: YAML Script Output -->
@@ -49,4 +47,5 @@
     </div>
 </div>
 <script src="/static/js/aws.js"></script>
+
 {% endblock %}

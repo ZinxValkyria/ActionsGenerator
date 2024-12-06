@@ -10,8 +10,7 @@ function handleTaskChange() {
             scriptOutput.textContent = ''; // Clear previous output
             break;
         case '/scripts/gcp/gcp_cli.yaml':
-        case '/scripts/gcp/login.yaml':
-        case '/scripts/gcp/logs.yaml':
+        case '/scripts/gcp/auth.yaml':
             loadYaml(task); // Pass the task value to loadYaml
             deployList.style.display = 'none';
             break;
