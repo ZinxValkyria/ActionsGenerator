@@ -1,4 +1,4 @@
-/* Reset */
+/* Reset styles to ensure consistent appearance across browsers */
 * {
     font-family: "Roboto Condensed", sans-serif;
     margin: 0;
@@ -6,7 +6,7 @@
     box-sizing: border-box;
 }
 
-/* Ensure body takes full height of the viewport */
+/* Set up full-height viewport for body and apply background image styling */
 html, body {
     height: 100%;
     margin: 0;
@@ -15,71 +15,77 @@ html, body {
     background-size: cover; /* Cover the entire viewport */
     background-position: center; /* Center the image */
     background-repeat: no-repeat;
+    background-color: rgba(52, 105, 64, 0.1);
+    background-image: url(/static/images/web.jpg);
 }
 
-/* Ensure main content grows and pushes footer to the bottom */
+/* Ensure main content grows to push the footer to the bottom */
 main {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-/* Header and Navigation Bar Styling */
+/* Styling for the header and navigation bar */
 header {
     color: white;
 }
 
+/* List item styling for navigation links */
 li {
     list-style-type: none;
     margin-left: 60px;
 }
 
+/* Intro section with semi-transparent background and centered text */
 .intro-section {
-    background-color: #333;
-    color: white;
+    background-color: rgba(255, 255, 255, 0.5); /* Changed to rgba with alpha value of 0.8 */
+    color: rgb(7, 6, 6);
     text-align: center;
     padding: 2em;
     border-radius: 20px;
-    margin-right: 40px;
-    margin-bottom: 50px;
+    margin-bottom: 16rem;
+    margin-left: 3rem;
+    margin-right: 3rem;
+    margin-top: 2rem;
+    
 }
 
-/* Navigation Bar Styling */
-.topnav {
+/* Navbar styling for links and hover effects */
+.navbar {
     background-color: #333;
-    display: flex; /* Use flexbox for layout */
-    justify-content: center; /* Center the navigation items horizontally */
-    align-items: center; /* Center items vertically */
-    height: 43px; /* Adjust the height as needed */
-    margin-bottom: 20px; /* Add margin at the bottom */ 
-    border-radius: 15px;
+    padding: 1em;
+    text-align: center;
 }
 
-.topnav ul {
-    list-style-type: none; /* Remove bullet points */
-    margin: 0; /* Remove default margin */
-    padding: 0; /* Remove default padding */
-    display: flex; /* Display list items horizontally */
-    width: 100%; /* Ensure the ul takes full width */
-    justify-content: space-around; /* Distribute items evenly */
-    border-radius: 25px;
-}
-
-.topnav a {
-    color: #f2f2f2;
+.navbar a {
+    color: #fff;
     text-decoration: none;
-    font-size: 16px;
-    display: flex; /* Use flexbox to center content */
-    align-items: center; /* Center text vertically */
-    padding: 0 15px;
+    margin: 0 20px;
+    transition: color 0.2s ease;
 }
 
-.topnav a:hover {
-    background-color: #ddd;
-    color: black;
+.navbar a:hover {
+    color: #ccc;
 }
 
-/* Grid layout for splitting the page into 3 sections */
+.navbar a.active {
+    color: #fff;
+    border-bottom: 2px solid #fff;
+}
+
+/* Responsive styling for navbar on smaller screens */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+    }
+    .navbar a {
+        margin: 10px 0;
+    }
+}
+
+/* Grid layout for splitting the page into three sections */
 .container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -88,23 +94,19 @@ li {
     flex: 1; /* Make sure the container grows */
 }
 
-/* Left Section: Form styling */
+/* Left section: form styling with background, padding, and shadow */
 .left-section {
     background-color: #f9f9f9;
-    padding-left: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    color: #555;
-    margin-left: 150px;
-}
-
-.left-section form {
-    background-color: #fff;
     padding: 20px;
     border-radius: 8px;
-    margin-left: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: #555;
+    height: fit-content;
+    opacity: 0.8;
 }
 
+/* Styling for form elements like select and checkboxes */
 select,
 input[type="checkbox"] {
     padding: 8px;
@@ -113,27 +115,29 @@ input[type="checkbox"] {
     margin-bottom: 10px;
 }
 
-/* YAML output styling */
+/* YAML output section with scrollable pre-formatted text styling */
 .middle-section pre {
     background-color: #eaeaea;
     padding: 50px;
-    margin-left: 30px;
     border-radius: 8px;
     border: 1px solid #ccc;
     white-space: pre-wrap;
     height: 50%;
-
     overflow-y: scroll;
     font-family: monospace;
+    opacity: 0.8;
 }
 
+/* Middle section image styling for additional elements */
 .middle-section img {
     width: 15%;
     display: block;
     margin: 0 auto;
+    border: 1px solid #ccc; 
+    border-radius: 50px;
 }
 
-/* Right Section */
+/* Right section styling for additional content */
 .right-section {
     background-color: #f9f9f9;
     padding: 20px;
@@ -141,9 +145,11 @@ input[type="checkbox"] {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
     color: #555;
+    height: fit-content;
+    opacity: 0.8;
 }
 
-/* Headings */
+/* General heading styles */
 h1 {
     text-align: center;
     color: #4f0303;
@@ -154,7 +160,7 @@ h2 {
     color: #555;
 }
 
-/* Center button using Flexbox in its parent container */
+/* Button styling for forms and other actions */
 button {
     padding: 2% 20px;
     background-color: #3498db;
@@ -164,9 +170,15 @@ button {
     margin: 0 auto;
     margin-top: 15px; /* Center horizontally */
     margin-bottom: 20%;
+    border: #ccc;
 }
 
-/* CSS for the icon-section */
+/* Hover effect for buttons */
+button:hover {
+    background-color: #0e2818;
+}
+
+/* Icon section with flexbox for alignment and hover effects */
 .icon-section {
     margin-top: auto; /* Pushes the icon section down as much as possible */
     padding-bottom: 30px; /* Adds some spacing before the footer */
@@ -179,30 +191,32 @@ button {
     flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
 }
 
-
+/* Individual icon item styling */
 .icon-item {
     flex: 1; /* Make items flexible */
     max-width: 100px; /* Limit max width of each icon */
     text-align: center; /* Center-align images and text */
-    margin-top: 12%;
 }
 
+/* Image styling for icons */
 .icon-item img {
     max-width: 150%; /* Make images responsive */
+    border-radius: 80px;
+    padding: .2rem;
+    background-color: white;
+    max-width: 6rem;
 }
 
+/* Hover effect for icons */
 .icon-item:hover img {
     transform: scale(1.2); /* Scale image by 20% */
+    opacity: 0.5;
 }
 
-button:hover {
-    background-color: #0e2818;
-}
-
-/* Footer Styling */
+/* Footer styling */
 footer {
     background-color: #333;
-    color: white;
+    color: rgb(22, 21, 21);
     text-align: center;
     padding: 10px 0;
     width: 100%;
@@ -210,7 +224,7 @@ footer {
     position: sticky;
 }
 
-/* For small screen sizes, make the layout more responsive */
+/* Responsive adjustments for small screen sizes */
 @media screen and (max-width: 768px) {
     .container {
         grid-template-columns: 1fr; /* Single column layout for small screens */
@@ -223,5 +237,6 @@ footer {
 
     .topnav ul {
         flex-direction: column; 
-        align-items: center;}
+        align-items: center;
+    }
 }

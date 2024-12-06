@@ -11,9 +11,9 @@ resource "aws_security_group" "ecs_sg" {
     description = "Allow HTTP traffic"
   }
 
-# Allow triaffic on on port 5000
+  # Allow triaffic on on port 5000
   ingress {
-    from_port   = 5000 
+    from_port   = 5000
     to_port     = 5000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -27,7 +27,7 @@ resource "aws_security_group" "ecs_sg" {
     description = "Allow HTTPS traffic"
   }
 
-# Allow everyone to exit the instance from any port
+  # Allow everyone to exit the instance from any port
   egress {
     from_port   = 0
     to_port     = 0
