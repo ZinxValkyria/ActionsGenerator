@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
-
 {% block title %}Azure Deployment Page{% endblock %}
-
 {% block content %}
 <h1>Microsoft Azure Deployment Configuration</h1>
 <div class="container">
@@ -12,10 +10,8 @@
             <label for="task">Select Azure Workflow for GitHub Actions:</label>
             <select id="task" name="task" required onchange="handleTaskChange()">
                 <option value="">Select Action</option>
-                <option value="login">Login</option>
                 <option value="deploy">Deploy</option>
                 <option value="/scripts/azure/azure_cli.yaml">Azure CLI commands</option>
-                <option value="logs">Logs</option>
             </select><br><br>
 
             <!-- Deployment section (hidden by default) -->
