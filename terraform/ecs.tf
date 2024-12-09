@@ -31,15 +31,14 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# This resource creates the task defination for the ECS service
-# This includes the container definition and the role to interact with this resource
+# ECS Task Definition
 resource "aws_ecs_task_definition" "ecs_task" {
   family                   = "actions-generator-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 256 # 256 CPU units (integer)
-  memory                   = 512 # 512 MB memory (integer)
-  execution_role_arn       = "arn:aws:iam::188132471158:role/ecsTaskExecutionRole""
+  cpu                      = 256
+  memory                   = 512
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
   container_definitions = jsonencode([
     {
@@ -48,14 +47,16 @@ resource "aws_ecs_task_definition" "ecs_task" {
       "essential" : true,
       "portMappings" : [
         {
-          "containerPort" : 5000
+          "containerPort" : 5000,
+          "hostPort" : 5000,
+          "protocol" : "tcp"
         }
       ]
     }
   ])
 }
 
-# This creates the ECS service
+# Create ECS Service
 resource "aws_ecs_service" "ecs_service" {
   name            = "actions-generator-service-2"
   cluster         = aws_ecs_cluster.ecs_cluster.id
@@ -66,7 +67,7 @@ resource "aws_ecs_service" "ecs_service" {
   network_configuration {
     subnets          = [aws_subnet.public_sub1.id, aws_subnet.public_sub2.id]
     security_groups  = [aws_security_group.ecs_sg.id]
-    assign_public_ip = true # Assign public IP for Fargate tasks
+    assign_public_ip = true
   }
 
   load_balancer {
@@ -75,5 +76,5 @@ resource "aws_ecs_service" "ecs_service" {
     container_port   = 5000
   }
 
-  depends_on = [aws_lb.app_lb] # This ensure the load balancer is created before the ECS service
+  depends_on = [aws_lb.app_lb]
 }
