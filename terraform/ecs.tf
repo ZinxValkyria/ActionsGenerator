@@ -1,7 +1,6 @@
 # Create ECS Cluster
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "my-ecs-cluster"
-
   tags = {
     Name = "ECS Cluster"
   }
@@ -38,18 +37,17 @@ resource "aws_ecs_task_definition" "ecs_task" {
   network_mode             = "awsvpc"
   cpu                      = 256
   memory                   = 512
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn # <-- Ensure this is correct
+  task_role_arn       = aws_iam_role.ecs_task_execution_role.arn # <-- Ensure this is correct
 
   container_definitions = jsonencode([
     {
       "name" : "actions-generator",
-      "image" : "zinx666/actions_generator:${var.image_tag}",
+      "image" : "zinx666/actions_generator:2bb6fa8",
       "essential" : true,
       "portMappings" : [
         {
           "containerPort" : 5000,
-          "hostPort" : 5000,
-          "protocol" : "tcp"
         }
       ]
     }

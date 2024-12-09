@@ -1,37 +1,39 @@
-# Create an S3 bucket for storing Terraform state
-# resource "aws_s3_bucket" "actions_template_state" {
-#   bucket = "actions-template-state"
-#   tags = {
-#     Name = "Github Actions Template State Bucket"
-#   }
-# }
+# Attach custom policy to allow S3 access
+resource "aws_iam_policy" "s3_access_policy" {
+  name = "ecs-s3-access-policy"
 
-# Enable server-side encryption for the S3 bucket
-# resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
-#   bucket = aws_s3_bucket.actions_template_state.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = ["s3:GetObject"],
+        Resource = "arn:aws:s3:::actions-template-bucket/*"
+      }
+    ]
+  })
+}
 
-#   rule {
-#     apply_server_side_encryption_by_default {
-#       sse_algorithm = "AES256"
-#     }
-#   }
-# }
+resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.s3_access_policy.arn
+}
 
-# Add a lifecycle configuration to manage object expiration in the S3 bucket
-# resource "aws_s3_bucket_lifecycle_configuration" "actions_template_lifecycle" {
-#   bucket = aws_s3_bucket.actions_template_state.id
+# Add Bucket Policy for allowing ECS Task to access it
+resource "aws_s3_bucket_policy" "s3_bucket_policy" {
+  bucket = "actions-template-bucket"
 
-#   rule {
-#     id     = "expire-objects"
-#     status = "Enabled"
-
-#     expiration {
-#       days = 30 # Adjust as needed
-#     }
-#   }
-# }
-
-# Enable versioning for the S3 bucket
-# resource "aws_s3_bucket_versioning" "actions_template_versioning" {
-#   bucket = aws_s3_bucket.actions_template_state.id
-# }
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::188132471158:role/ecsTaskExecutionRole"
+        },
+        Action   = "s3:GetObject",
+        Resource = "arn:aws:s3:::actions-template-bucket/*"
+      }
+    ]
+  })
+}

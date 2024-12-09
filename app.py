@@ -6,6 +6,12 @@ It serves HTML pages and provides an endpoint to fetch YAML script files from S3
 import os
 from flask import Flask, render_template, Response, abort, jsonify, request
 import boto3
+import logging
+# log = logging.getLogger()
+# log.info("my log message here")
+# log.debug("my debug message here")
+# log.fatal("my fatal message here")  
+
 
 # Flask app initialization
 app = Flask(__name__, template_folder="templatesv2")
