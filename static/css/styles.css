@@ -1,4 +1,4 @@
-/* Reset styles to ensure consistent appearance across browsers */
+/* Global reset and consistent styling */
 * {
     font-family: "Roboto Condensed", sans-serif;
     margin: 0;
@@ -6,17 +6,13 @@
     box-sizing: border-box;
 }
 
-/* Set up full-height viewport for body and apply background image styling */
+/* Full-height viewport and background image styling */
 html, body {
     height: 100%;
     margin: 0;
     display: flex;
     flex-direction: column;
-    background-size: cover; /* Cover the entire viewport */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat;
-    background-color: rgba(52, 105, 64, 0.1);
-    background-image: url(/static/images/web.jpg);
+    background: rgba(52, 105, 64, 0.1) url(/static/images/web.jpg) center/cover no-repeat;
 }
 
 /* Ensure main content grows to push the footer to the bottom */
@@ -26,12 +22,12 @@ main {
     flex-direction: column;
 }
 
-/* Styling for the header and navigation bar */
+/* Header styling */
 header {
     color: white;
 }
 
-/* List item styling for navigation links */
+/* List item styling for navigation */
 li {
     list-style-type: none;
     margin-left: 60px;
@@ -39,19 +35,15 @@ li {
 
 /* Intro section with semi-transparent background and centered text */
 .intro-section {
-    background-color: rgba(255, 255, 255, 0.5); /* Changed to rgba with alpha value of 0.8 */
+    background-color: rgba(255, 255, 255, 0.5);
     color: rgb(7, 6, 6);
     text-align: center;
     padding: 2em;
     border-radius: 20px;
-    margin-bottom: 25%;
-    margin-left: 3rem;
-    margin-right: 3rem;
-    margin-top: 2rem;
-    
+    margin: 2rem 3rem 25% 3rem;
 }
 
-/* Navbar styling for links and hover effects */
+/* Navbar container and link styling */
 .navbar {
     background-color: #333;
     padding: 1em;
@@ -65,6 +57,7 @@ li {
     transition: color 0.2s ease;
 }
 
+/* Navbar link hover and active state */
 .navbar a:hover {
     color: #ccc;
 }
@@ -74,7 +67,7 @@ li {
     border-bottom: 2px solid #fff;
 }
 
-/* Responsive styling for navbar on smaller screens */
+/* Responsive navbar styling for smaller screens */
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
@@ -85,16 +78,16 @@ li {
     }
 }
 
-/* Grid layout for splitting the page into three sections */
+/* Three-column grid layout for main container */
 .container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 30px;
     max-width: 200%;
-    flex: 1; /* Make sure the container grows */
+    flex: 1;
 }
 
-/* Left section: form styling with background, padding, and shadow */
+/* Left section form container styling */
 .left-section {
     background-color: #f9f9f9;
     padding: 20px;
@@ -106,38 +99,39 @@ li {
     opacity: 0.8;
 }
 
-/* Styling for form elements like select and checkboxes */
-select,
-input[type="checkbox"] {
+/* Form elements (select and checkbox) styling */
+select, input[type="checkbox"] {
     padding: 8px;
     font-size: 16px;
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin: 5px 0 10px;
 }
 
-/* YAML output section with scrollable pre-formatted text styling */
+/* YAML output section with scrollable pre-formatted text */
 .middle-section pre {
     background-color: #eaeaea;
-    padding: 50px;
+    padding: 20px;
     border-radius: 8px;
     border: 1px solid #ccc;
     white-space: pre-wrap;
     height: 50%;
-    overflow-y: scroll;
+    max-height: 300px;
+    overflow-y: auto;
     font-family: monospace;
     opacity: 0.8;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Middle section image styling for additional elements */
+/* Image styling within middle section */
 .middle-section img {
     width: 15%;
     display: block;
     margin: 0 auto;
-    border: 1px solid #ccc; 
+    border: 1px solid #ccc;
     border-radius: 50px;
 }
 
-/* Right section styling for additional content */
+/* Right section content styling */
 .right-section {
     background-color: #f9f9f9;
     padding: 20px;
@@ -149,7 +143,7 @@ input[type="checkbox"] {
     opacity: 0.8;
 }
 
-/* General heading styles */
+/* Heading styles */
 h1 {
     text-align: center;
     color: #4f0303;
@@ -160,83 +154,79 @@ h2 {
     color: #555;
 }
 
-/* Button styling for forms and other actions */
+/* Button styling for forms and actions */
 button {
     padding: 2% 20px;
     background-color: #3498db;
     color: white;
     border-radius: 5px;
     display: block;
-    margin: 0 auto;
-    margin-top: 15px; /* Center horizontally */
-    margin-bottom: 20%;
+    margin: 15px auto 20%;
     border: #ccc;
 }
 
-/* Hover effect for buttons */
+/* Button hover effect */
 button:hover {
     background-color: #0e2818;
 }
 
-/* Icon section with flexbox for alignment and hover effects */
+/* Icon section with flexible alignment */
 .icon-section {
-    margin-top: auto; /* Pushes the icon section down as much as possible */
-    padding-bottom: 30px; /* Adds some spacing before the footer */
+    margin-top: auto;
+    padding-bottom: 30px;
 }
 
+/* Icon container flexbox setup */
 .icon-container {
     display: flex;
-    justify-content: space-around; /* Space out items evenly */
-    align-items: center; /* Center items vertically */
-    flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 /* Individual icon item styling */
 .icon-item {
-    flex: 1; /* Make items flexible */
-    max-width: 100px; /* Limit max width of each icon */
-    text-align: center; /* Center-align images and text */
+    flex: 1;
+    max-width: 100px;
+    text-align: center;
 }
 
-/* Image styling for icons */
+/* Icon image styling */
 .icon-item img {
-    max-width: 150%; /* Make images responsive */
-    border-radius: 80px;
-    padding: .2rem;
-    background-color: white;
     max-width: 6rem;
+    border-radius: 80px;
+    padding: 0.2rem;
+    background-color: white;
 }
 
 /* Hover effect for icons */
 .icon-item:hover img {
-    transform: scale(1.2); /* Scale image by 20% */
+    transform: scale(1.2);
     opacity: 0.5;
 }
 
-/* Footer styling */
+/* Sticky footer styling */
 footer {
     background-color: #333;
     color: rgb(22, 21, 21);
     text-align: center;
     padding: 10px 0;
     width: 100%;
-    margin-top: auto; /* Push footer to the bottom */
+    margin-top: auto;
     position: sticky;
 }
 
-/* Responsive adjustments for small screen sizes */
+/* Responsive adjustments for smaller screens */
 @media screen and (max-width: 768px) {
     .container {
-        grid-template-columns: 1fr; /* Single column layout for small screens */
+        grid-template-columns: 1fr;
         margin-left: 0;
     }
-
     .icon-item img {
-        max-width: 50%; /* Make images responsive */
+        max-width: 50%;
     }
-
     .topnav ul {
-        flex-direction: column; 
+        flex-direction: column;
         align-items: center;
     }
 }
