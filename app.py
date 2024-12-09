@@ -1,25 +1,18 @@
 """
 This module initializes and configures a Flask web application.
-It serves HTML pages and provides an endpoint to fetch local
-YAML script files from the 'scripts' directory.
+It serves HTML pages and provides an endpoint to fetch YAML script files from S3.
 """
 
 import os
-from flask import Flask, render_template, send_from_directory, abort, jsonify, request
-import newrelic.agent
-# from dotenv import load_dotenv
+from flask import Flask, render_template, Response, abort, jsonify, request
+import boto3
 
+# Flask app initialization
 app = Flask(__name__, template_folder="templatesv2")
-# load_dotenv()
 
-#  YAML scripts are stored
-SCRIPTS_DIR = os.path.join(os.getcwd(), "scripts")
-
-# Ensure scripts directory exists
-if not os.path.exists(SCRIPTS_DIR):
-    raise FileNotFoundError(
-        f"The directory {SCRIPTS_DIR} does not exist. Please check your project structure."
-    )
+# AWS S3 configuration
+S3_BUCKET_NAME = "actions-template-bucket"
+s3_client = boto3.client("s3")  # Ensure AWS credentials and region are configured
 
 
 # Route for the homepage
@@ -33,13 +26,14 @@ def home():
     """
     return render_template("home.html")
 
+
 @app.route("/test")
 def test():
     """
-    Renders the homepage (home.html).
+    Renders the homepage (test.html).
 
     Returns:
-        The rendered HTML template for the homepage.
+        The rendered HTML template for the test page.
     """
     return render_template("test.html")
 
@@ -116,73 +110,82 @@ def gh_pages():
     return render_template("custom.html")
 
 
-#  Route to fetch YAML files from local storage
-@app.route("/scripts/<path:filename>", methods=["GET"])
-def fetch_yaml(filename):
+# Route to fetch YAML files from S3
+@app.route("/scripts/<service>/<path:filename>", methods=["GET"])
+def fetch_yaml(service, filename):
     """
-    Fetches a YAML file from the scripts directory.
+    Fetches a YAML file from the S3 bucket, organized by service-specific subdirectories.
 
     Args:
+        service (str): The subdirectory in the S3 bucket (e.g., 'aws', 'azure').
         filename (str): The name of the YAML file to retrieve.
 
     Returns:
-        A file if it exists in the 'scripts' directory, or a 404 error if the file is not found.
+        The file content as a response, or a 404 error if the file is not found.
     """
-    file_path = os.path.join(SCRIPTS_DIR, filename)
+    try:
+        # Construct the S3 key using the service and filename
+        key = f"scripts/{service}/{filename}"
+        s3_response = s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=key)
+        file_content = s3_response["Body"].read()
 
-    # Check if the file exists
-    if os.path.isfile(file_path):
-        return send_from_directory(SCRIPTS_DIR, filename)
+        # Return the file content as a response
+        return Response(
+            file_content,
+            mimetype="application/x-yaml",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except s3_client.exceptions.NoSuchKey:
+        return abort(404, description=f"File not found in S3: {key}")
+    except Exception as e:
+        return abort(500, description=str(e))
 
-    # If the file doesn't exist, return error
-    return abort(404, description="File not found")
 
-
+# Route to dynamically generate YAML based on a template from S3
 @app.route('/generate_yaml', methods=['POST'])
 def generate_yaml():
-    # Get form data from the frontend
-    workflow_name = request.form.get('workflow_name')
-    triggers = request.form.getlist('triggers')  # List of selected triggers
-    job_name = request.form.get('job_name')
-    runs_on = request.form.get('runs_on')
-    steps = request.form.get('steps')
-    uses_action = request.form.get('uses_action')
-    run_command = request.form.get('run')
+    """
+    Generates a YAML file by replacing placeholders in a base YAML template fetched from S3.
 
-    # Prepare the trigger events string
-    trigger_events = "\n  ".join([f"{trigger}:" for trigger in triggers])
+    Returns:
+        JSON response containing the generated YAML content.
+    """
+    try:
+        # Get form data from the frontend
+        workflow_name = request.form.get('workflow_name')
+        triggers = request.form.getlist('triggers')  # List of selected triggers
+        job_name = request.form.get('job_name')
+        runs_on = request.form.get('runs_on')
+        steps = request.form.get('steps')
+        uses_action = request.form.get('uses_action')
+        run_command = request.form.get('run')
 
-    # Construct the YAML template
-    yaml_template = """
-name: {{workflow_name}}
+        # Prepare the trigger events string
+        trigger_events = "\n  ".join([f"{trigger}:" for trigger in triggers])
 
-on:
-  {{trigger_events}}
+        # Fetch the base YAML from S3
+        key = "scripts/custom/base.yaml"
+        s3_response = s3_client.get_object(Bucket=S3_BUCKET_NAME, Key=key)
+        base_yaml_content = s3_response["Body"].read().decode("utf-8")
 
-jobs:
-  {{job_name}}:
-    runs-on: {{runs_on}}
+        # Replace the placeholders with the actual values
+        yaml_content = base_yaml_content.replace("{{workflow_name}}", workflow_name) \
+            .replace("{{trigger_events}}", trigger_events) \
+            .replace("{{job_name}}", job_name) \
+            .replace("{{runs_on}}", runs_on) \
+            .replace("{{steps}}", steps) \
+            .replace("{{uses_action}}", uses_action) \
+            .replace("{{run_command}}", run_command)
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: {{uses_action}}
-        run: |
-          {{run_command}}
-"""
+        # Return the YAML content as JSON
+        return jsonify({"yaml": yaml_content})
 
-    # Replace the placeholders with the actual values
-    yaml_content = yaml_template.replace("{{workflow_name}}", workflow_name) \
-        .replace("{{trigger_events}}", trigger_events) \
-        .replace("{{job_name}}", job_name) \
-        .replace("{{runs_on}}", runs_on) \
-        .replace("{{steps}}", steps) \
-        .replace("{{uses_action}}", uses_action) \
-        .replace("{{run_command}}", run_command)
-
-    # Return the YAML content as JSON
-    return jsonify({"yaml": yaml_content})
+    except s3_client.exceptions.NoSuchKey:
+        return abort(404, description=f"Base YAML file not found in S3: {key}")
+    except Exception as e:
+        return abort(500, description=str(e))
 
 
+# Start the Flask app
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
