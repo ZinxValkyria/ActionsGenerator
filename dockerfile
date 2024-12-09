@@ -18,9 +18,6 @@ COPY . .
 # Copy the New Relic configuration file
  COPY newrelic.ini /app/newrelic.ini
 
-# Copy the New Relic configuration file
-COPY newrelic.ini /app/newrelic.ini
-
 # Expose port 5000 for the Flask application
 EXPOSE 5000
 
