@@ -1,0 +1,15 @@
+name: {{workflow_name}}
+
+on:
+  {{trigger_events}}
+
+jobs:
+  {{job_name}}:
+    runs-on: {{runs_on}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: {{uses_action}}
+        run: |
+          {{run_command}}

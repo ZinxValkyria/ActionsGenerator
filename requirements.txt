@@ -3,3 +3,4 @@ PyYAML
 pytest
 newrelic
 flask
+boto3

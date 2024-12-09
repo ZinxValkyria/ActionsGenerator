@@ -13,11 +13,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
-# Copy the .env file into the container
 # COPY .env /app/.env
 
 # Copy the New Relic configuration file
  COPY newrelic.ini /app/newrelic.ini
+
+# Copy the New Relic configuration file
+COPY newrelic.ini /app/newrelic.ini
 
 # Expose port 5000 for the Flask application
 EXPOSE 5000
