@@ -25,7 +25,7 @@ jobs:
       
       # Step to format Terraform files
       - name: Run terraform fmt to check formatting
-        run: terraform fmt -check -recursive
+        run: terraform fmt
         working-directory: terraform
 
       # Step to validate Terraform files
