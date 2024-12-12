@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install Requirements
         run: pip install -r requirements.txt
-        working-directory: ./  # Specify the correct directory if needed
+        working-directory: ./
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/python@master
         env:
