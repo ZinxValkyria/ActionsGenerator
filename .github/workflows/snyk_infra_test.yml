@@ -54,10 +54,4 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           path: terraform/
-          sarif_file: snyk.sarif
-
-      # Upload SARIF results to GitHub Code Scanning
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk.sarif
+        
