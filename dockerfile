@@ -19,7 +19,7 @@ COPY . .
  COPY newrelic.ini /app/newrelic.ini
 
 # Expose port 5000 for the Flask application
-EXPOSE 5000
+EXPOSE 5000 443
 
 # Set environment variables for Flask
 ENV FLASK_APP=app.py
