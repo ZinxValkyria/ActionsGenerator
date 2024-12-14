@@ -37,24 +37,6 @@ resource "aws_subnet" "public_sub2" {
   }
 }
 
-# Create a Private Subnet
-resource "aws_subnet" "private_sub" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "eu-west-1a"
-
-  tags = {
-    Name = "Private Subnet"
-  }
-}
-
-# Allocate an Elastic IP for the NAT Gateway
-resource "aws_eip" "nat_eip" {
-  tags = {
-    Name = "NAT Elastic IP"
-  }
-}
-
 # Create an Internet Gateway
 resource "aws_internet_gateway" "actions_template_internet_gateway" {
   vpc_id = aws_vpc.main.id
