@@ -1,0 +1,137 @@
+name: MY PRODUCTION PIPELINE
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  # First Job: Run Python Scan 1 (Snyk for Python vulnerabilities)
+  python_scan_1:
+    name: Run Snyk to check for Python vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Requirements
+        run: pip install -r requirements.txt
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  # Second Job: Run Python Tests (Pytest)
+  python_tests:
+    name: Run Python Tests
+    runs-on: ubuntu-latest
+    needs: python_scan_1  # Only run after python_scan_1 succeeds
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
+        run: python -m pytest tests/
+
+  # Third Job: Run Snyk to scan Infrastructure as Code (Terraform)
+  snyk_infra:
+    name: Run Snyk to scan Terraform files
+    runs-on: ubuntu-latest
+    needs: python_tests  # Only run after Python tests succeed
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Terraform Init
+        run: terraform init
+        working-directory: terraform
+      - name: Run terraform fmt to check formatting
+        run: terraform fmt
+        working-directory: terraform
+      - name: Run terraform validate to check syntax
+        run: terraform validate
+        working-directory: terraform
+      - name: Run Snyk to check all Terraform files for security issues
+        continue-on-error: true
+        uses: snyk/actions/iac@14818c4695ecc4045f33c9cee9e795a788711ca4
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          path: terraform/
+
+  # Fourth Job: Build and Push Docker Image
+  build_and_push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: snyk_infra  # Only run after snyk_infra succeeds
+    outputs:
+      IMAGE_TAG: ${{ steps.docker_tag.outputs.IMAGE_TAG }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Create newrelic.ini
+        run: echo "${{ secrets.NEW_RELIC_CONFIG2 }}" > newrelic.ini
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_API_KEY }}
+      - name: Set Docker image tag
+        id: docker_tag
+        run: |
+          IMAGE_TAG="${GITHUB_SHA::7}"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
+      - name: Build Docker Image
+        env:
+          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }} .
+      - name: Push Docker Image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
+
+  # Fifth Job: Terraform Apply
+  apply:
+    name: Terraform Apply
+    needs: build_and_push  # Only run after the Docker image is built and pushed
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Populate secrets.auto.tfvars
+        run: |
+          cat <<EOF > secrets.auto.tfvars
+          cloudflare_api_token = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          cloudflare_zone_id = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
+          new_relic_license_key = "${{ secrets.NEW_RELIC_LICENSE_KEY }}"
+          EOF
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Plan
+        run: terraform plan -var="image_tag=${{needs.build_and_push.outputs.IMAGE_TAG}}" --auto-approve
+      - name: Cleanup Secrets
+        run: rm -f secrets.auto.tfvars
