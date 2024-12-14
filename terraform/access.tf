@@ -104,27 +104,3 @@ resource "aws_lb_listener" "https" {
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
   }
 }
-
-
-# Security Group for instances in the private subnet
-resource "aws_security_group" "private_sg" {
-  vpc_id = aws_vpc.main.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.2.0/24"] # Allow HTTP traffic from the private subnet
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1" # Allow all outbound traffic
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "Private Security Group"
-  }
-}
