@@ -1,4 +1,4 @@
-name: MY PRODUCTION PIPELINE
+name: MY STAGING PIPELINE
 
 on:
   push:
