@@ -3,7 +3,7 @@ name: MY PRODUCTION PIPELINE
 on:
   push:
     branches:
-      - main
+      - staging
   workflow_dispatch:
 
 permissions:
