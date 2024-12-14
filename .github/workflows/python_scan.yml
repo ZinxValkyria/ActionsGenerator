@@ -2,9 +2,7 @@ name: Example workflow for Python using Snyk
 on: 
   push:
     branches:
-      - staging
-      - dev
-      - main
+      dev
   pull_request:
     branches:
       - main
