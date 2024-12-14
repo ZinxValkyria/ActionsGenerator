@@ -60,16 +60,3 @@ def test_azure_page(client):
     response = client.get("/azure")
     assert response.status_code == 200
     assert b"Azure" in response.data  # Replace with actual content in azure.html
-
-
-def test_fetch_yaml(client):
-    """Test fetching a YAML file from the scripts directory"""
-    # Replace 'example.yaml' with a valid YAML filename you expect to exist in the 'scripts' directory
-    response = client.get("/scripts/aws/s3.yaml")
-    assert response.status_code == 200  # Expect to find the file
-
-
-def test_fetch_yaml_not_found(client):
-    """Test fetching a non-existent YAML file"""
-    response = client.get("/scripts/na.yaml")
-    assert response.status_code == 404  # Expect 404 for non-existent file

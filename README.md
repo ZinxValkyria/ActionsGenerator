@@ -36,5 +36,5 @@ The application will save users time and effort by simplifying the creation and 
 - **Frontend**: HTML,CSS,Javascript
 - **Backend**: Flask server (python)
 - **Infrastructure**: Terraform
-- **Monitoring**: New Relic (or other monitoring tools)
+- **Monitoring**: New Relic
 - **Database**: DynamoDB for state-locking
