@@ -37,8 +37,8 @@ resource "aws_ecs_task_definition" "ecs_task" {
   network_mode             = "awsvpc"
   cpu                      = 256
   memory                   = 512
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn # <-- Ensure this is correct
-  task_role_arn       = aws_iam_role.ecs_task_execution_role.arn # <-- Ensure this is correct
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
 
   container_definitions = jsonencode([
     {
@@ -47,7 +47,19 @@ resource "aws_ecs_task_definition" "ecs_task" {
       "essential" : true,
       "portMappings" : [
         {
-          "containerPort" : 5000,
+          "containerPort" : 5000, # internal port your service listens on
+          "hostPort" : 5000,
+          "protocol" : "tcp"
+        },
+        {
+          "containerPort" : 80, # exposing port 80 externally
+          "hostPort" : 80,      # external port (mapped to the Load Balancer)
+          "protocol" : "tcp"
+        },
+        {
+          "containerPort" : 443, # exposing port 443 externally
+          "hostPort" : 443,      # external port (mapped to the Load Balancer)
+          "protocol" : "tcp"
         }
       ]
     }
@@ -56,16 +68,16 @@ resource "aws_ecs_task_definition" "ecs_task" {
 
 # Create ECS Service
 resource "aws_ecs_service" "ecs_service" {
-  name            = "actions-generator-service-2"
+  name            = "actions-generator-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.ecs_task.id
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = [aws_subnet.public_sub1.id, aws_subnet.public_sub2.id]
+    subnets          = [aws_subnet.private_sub1.id, aws_subnet.private_sub2.id] # ECS tasks in private subnets
     security_groups  = [aws_security_group.ecs_sg.id]
-    assign_public_ip = true
+    assign_public_ip = false # Fargate tasks in private subnets should not have public IP
   }
 
   load_balancer {
@@ -74,5 +86,5 @@ resource "aws_ecs_service" "ecs_service" {
     container_port   = 5000
   }
 
-  depends_on = [aws_lb.app_lb]
+  depends_on = [aws_lb.app_lb] # Ensure LB is created before ECS service
 }
