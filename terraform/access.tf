@@ -1,4 +1,3 @@
-
 # Define the security group for ECS
 resource "aws_security_group" "ecs_sg" {
   vpc_id = aws_vpc.main.id
@@ -11,7 +10,6 @@ resource "aws_security_group" "ecs_sg" {
     description = "Allow HTTP traffic"
   }
 
-  # Allow triaffic on on port 5000
   ingress {
     from_port   = 5000
     to_port     = 5000
@@ -19,6 +17,7 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow traffic on port 5000"
   }
+
   ingress {
     from_port   = 443
     to_port     = 443
@@ -27,7 +26,6 @@ resource "aws_security_group" "ecs_sg" {
     description = "Allow HTTPS traffic"
   }
 
-  # Allow everyone to exit the instance from any port
   egress {
     from_port   = 0
     to_port     = 0
@@ -40,7 +38,6 @@ resource "aws_security_group" "ecs_sg" {
     Name = "ECS Security Group"
   }
 }
-
 
 # Create Target Group with IP target type
 resource "aws_lb_target_group" "ecs_target_group" {
@@ -64,7 +61,7 @@ resource "aws_lb" "app_lb" {
   name               = "app-lb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.ecs_sg.id]
+  security_groups    = [aws_security_group.app_lb_sg.id] # updated to use proper security group for LB
 
   subnets = [
     aws_subnet.public_sub1.id,
@@ -78,15 +75,18 @@ resource "aws_lb" "app_lb" {
   }
 }
 
-# Listener for the Load Balancer on http
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.app_lb.arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs_target_group.arn
+    type = "redirect"
+    redirect {
+      protocol    = "HTTPS"
+      port        = "443"
+      status_code = "HTTP_301"
+    }
   }
 }
 
@@ -96,7 +96,7 @@ resource "aws_lb_listener" "https" {
   port              = 443
   protocol          = "HTTPS"
 
-  ssl_policy      = "ELBSecurityPolicy-2016-08"
+  ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-2021-06"
   certificate_arn = "arn:aws:acm:eu-west-1:188132471158:certificate/01dfe950-0751-4f57-9e4e-2f13ea9f0900"
 
   default_action {
