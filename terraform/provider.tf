@@ -2,9 +2,11 @@
 
 terraform {
   backend "s3" {
-    bucket = "actions-template-state"
-    key    = "global/mystatefile/terraform.tfstate"
-    region = "eu-west-2"
+    bucket         = "actions-template-state"
+    key            = "global/mystatefile/terraform.tfstate"
+    region         = "eu-west-2"
+    dynamodb_table = "state-lock" # Name of your DynamoDB table for state locking
+    encrypt        = true         # Enable encryption for the state file
   }
 
   required_providers {
@@ -31,5 +33,5 @@ resource "cloudflare_record" "app_record" {
   value   = aws_lb.app_lb.dns_name
   type    = "CNAME"
   ttl     = 300
-  proxied = false
+  proxied = true
 }
