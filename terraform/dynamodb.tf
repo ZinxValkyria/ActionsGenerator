@@ -1,5 +1,4 @@
-# DynamoDB table created for state-locking
-
+# # DynamoDB table created for state-locking
 # resource "aws_dynamodb_table" "statelock" {
 #   name         = "state-lock"
 #   billing_mode = "PAY_PER_REQUEST"
