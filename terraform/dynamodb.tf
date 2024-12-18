@@ -1,16 +1,15 @@
 # DynamoDB table created for state-locking
+resource "aws_dynamodb_table" "statelock" {
+  name         = "state-lock"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "LockID"
 
-# resource "aws_dynamodb_table" "statelock" {
-#   name         = "state-lock"
-#   billing_mode = "PAY_PER_REQUEST"
-#   hash_key     = "LockID"
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+  lifecycle {
+    prevent_destroy = true
+  }
 
-#   attribute {
-#     name = "LockID"
-#     type = "S"
-#   }
-#   lifecycle {
-#     prevent_destroy = true
-#   }
-
-# }
+}
