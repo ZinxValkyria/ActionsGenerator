@@ -77,7 +77,7 @@ jobs:
             python -m pip install --upgrade pip
             pip install -r requirements.txt
     
-        - name: Run S3 Connection Test
+        - name: Run S3 File check Exists Test
           env:
             S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
             S3_FILE_KEY: ${{ secrets.S3_FILE_KEY }}
