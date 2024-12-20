@@ -139,15 +139,3 @@ resource "aws_route_table_association" "private2_association" {
   subnet_id      = aws_subnet.private_sub2.id
   route_table_id = aws_route_table.private_rt.id
 }
-
-# Associate Route Table with Private Subnet 1
-resource "aws_route_table_association" "private1_association" {
-  subnet_id      = aws_subnet.private_sub1.id
-  route_table_id = aws_route_table.private_rt.id
-}
-
-# Associate Route Table with Private Subnet 2
-resource "aws_route_table_association" "private2_association" {
-  subnet_id      = aws_subnet.private_sub2.id
-  route_table_id = aws_route_table.private_rt.id
-}
