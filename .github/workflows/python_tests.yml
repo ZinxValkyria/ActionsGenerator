@@ -1,4 +1,4 @@
-name: Run E2E Tests and Test S3 Connection
+name: Run End to End testing and unit tests
 
 on:
   workflow_dispatch:
