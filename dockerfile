@@ -15,6 +15,8 @@ COPY . .
 
 COPY .env /app/.env
 
+ENV DOTENV_PATH=/app/.env
+
 # Copy the New Relic configuration file
  COPY newrelic.ini /app/newrelic.ini
 
@@ -26,6 +28,7 @@ ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
 ENV NEW_RELIC_CONFIG_FILE=/app/newrelic.ini
+ENV DOTENV_PATH=/app/.env
 
 # Run the Flask application using New Relic
 CMD ["newrelic-admin", "run-program", "flask", "run"]

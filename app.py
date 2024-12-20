@@ -6,19 +6,15 @@ It serves HTML pages and provides an endpoint to fetch YAML script files from S3
 import os
 from flask import Flask, render_template, Response, abort, jsonify, request
 import boto3
-import dotenv
 # import logging
 # log = logging.getLogger()
 # log.info("my log message here")
 # log.debug("my debug message here")
-# log.fatal("my fatal message here")  
-
-dotenv.load_dotenv()
-# Flask app initialization
+# log.fatal("my fatal message here")  # Flask app initialization
 app = Flask(__name__, template_folder="templatesv2")
 
 # AWS S3 configuration
-S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+S3_BUCKET_NAME = "actions-template-bucket"
 s3_client = boto3.client("s3")  # Ensure AWS credentials and region are configured
 
 
