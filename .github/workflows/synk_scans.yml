@@ -1,20 +1,25 @@
-name: SNYK SCANNING
-on:
+name: Snyk Python Scanning and Terraform Security Scanning
+on: 
   push:
-    branches: 
-      - feat/infrastructure
-      - staging
-      - main
-  workflow_dispatch:
+    branches:
+      dev
   pull_request:
-    branches: 
-      - staging
+    branches:
       - main
-permissions:
-  contents: read
-
+      - staging
 jobs:
-  
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Requirements
+        run: pip install -r requirements.txt
+        working-directory: ./
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
   snyk:
     permissions:
       contents: read
@@ -52,4 +57,4 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         
-        
+
