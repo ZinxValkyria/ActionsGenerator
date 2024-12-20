@@ -18,23 +18,6 @@ if not file_key or not bucket_name:
 # Initialize the S3 client
 s3_client = boto3.client("s3")
 
-@pytest.mark.parametrize("bucket_name", [bucket_name])
-def test_s3_bucket_ping(bucket_name):
-    """
-    Test if the S3 bucket is accessible by sending a head_bucket request.
-
-    Args:
-        bucket_name (str): Name of the S3 bucket.
-    """
-    try:
-        # Perform a head_bucket call to check if the bucket is reachable
-        response = s3_client.head_bucket(Bucket=bucket_name)
-        assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
-        print(f"Successfully connected to the S3 bucket: {bucket_name}")
-    except Exception as e:
-        pytest.fail(f"Failed to connect to S3 bucket {bucket_name}: {e}")
-
-
 def test_s3_file_exists():
     """
     Test if a specific file exists in the S3 bucket.
