@@ -35,7 +35,6 @@ jobs:
       # Initialize Terraform
       - name: Terraform Init
         run: terraform init
-        run: terraform init
         working-directory: terraform/
       # Step to format Terraform files
       - name: Run terraform fmt to check formatting
