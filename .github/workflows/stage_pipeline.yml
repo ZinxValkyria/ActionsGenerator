@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 env:
-    S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+  S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
 
 jobs:
   # First Job: Run Python Scan 1 (Snyk for Python vulnerabilities)
@@ -28,70 +28,83 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-  # Second Job: Run End-to-End Tests (Routes Testing)
+  # Second Job: Run End-to-End testing and unit tests
   End_to_End_Tests_Route_Testing:
     runs-on: ubuntu-latest
-    needs: python_scan_1  # Only run after Python scan job succeeds
+    needs: python_scan_1  # Only run after the Python scan job succeeds
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run End-to-End Tests
-        run: python -m pytest tests/test_routes.py
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run End-to-End Tests
+      run: python -m pytest tests/test_routes.py
 
   # Third Job: Test S3 Connection
   Test_S3_Connection:
     runs-on: ubuntu-latest
     needs: End_to_End_Tests_Route_Testing  # Only run after End-to-End tests pass
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run S3 Connection Test
-        env:
-          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
-        run: python -m pytest tests/test_s3_bucket_connection.py
 
-  # Fourth Job: Test S3 File Existence
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-1  # Replace with your region if different
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run S3 Connection Test
+      env:
+        S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+        S3_FILE_KEY: ${{ secrets.S3_FILE_KEY }}
+      run: python -m pytest tests/test_s3_bucket_connection.py
+
+  # Fourth Job: Test if file exists in S3
   Test_file_exists:
     runs-on: ubuntu-latest
-    needs: Test_S3_Connection  # Only run after S3 Connection test passes
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run S3 File Exists Test
-        env:
-          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
-          S3_FILE_KEY: ${{ secrets.S3_FILE_KEY }}
-        run: python -m pytest tests/test_s3_file_exists.py
+    needs: Test_S3_Connection  # Only run after S3 connection test passes
 
-  # Fifth Job: Run Snyk to scan Infrastructure as Code (Terraform)
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-west-1
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run S3 File Exists Test
+      env:
+        S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+        S3_FILE_KEY: ${{ secrets.S3_FILE_KEY }}
+      run: python -m pytest tests/test_s3_file_exists.py
+
+  # Fifth Job: Run Snyk to scan Terraform files
   snyk_infra:
     name: Run Snyk to scan Terraform files
     runs-on: ubuntu-latest
