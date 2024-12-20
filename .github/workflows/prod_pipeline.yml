@@ -10,7 +10,8 @@ permissions:
   contents: write
   pull-requests: write
   id-token: write
-
+env:
+    S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
 jobs:
   # First Job: Run Python Scan 1 (Snyk for Python vulnerabilities)
   python_scan_1:

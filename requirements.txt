@@ -4,3 +4,4 @@ pytest
 newrelic
 flask
 boto3
+python-dotenv
