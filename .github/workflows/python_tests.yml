@@ -54,4 +54,5 @@ jobs:
     - name: Run S3 Connection Test
       env:
         S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}  # Pass the S3_BUCKET_NAME secret
+        S3_FILE_KEY: ${{ secrets.S3_FILE_KEY }}
       run: python -m pytest tests/unit_testing.py
