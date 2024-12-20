@@ -10,8 +10,10 @@ permissions:
   contents: write
   pull-requests: write
   id-token: write
+
 env:
     S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+
 jobs:
   # First Job: Run Python Scan 1 (Snyk for Python vulnerabilities)
   python_scan_1:
@@ -26,11 +28,10 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-  # Second Job: Run Python Tests (Pytest)
-  python_tests:
-    name: Run Python Tests
+  # Second Job: Run End-to-End Tests (Routes Testing)
+  End_to_End_Tests_Route_Testing:
     runs-on: ubuntu-latest
-    needs: python_scan_1  # Only run after python_scan_1 succeeds
+    needs: python_scan_1  # Only run after Python scan job succeeds
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -42,14 +43,59 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Run tests
-        run: python -m pytest tests/
+      - name: Run End-to-End Tests
+        run: python -m pytest tests/test_routes.py
 
-  # Third Job: Run Snyk to scan Infrastructure as Code (Terraform)
+  # Third Job: Test S3 Connection
+  Test_S3_Connection:
+    runs-on: ubuntu-latest
+    needs: End_to_End_Tests_Route_Testing  # Only run after End-to-End tests pass
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run S3 Connection Test
+        env:
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+        run: python -m pytest tests/test_s3_bucket_connection.py
+
+  # Fourth Job: Test S3 File Existence
+  Test_file_exists:
+    runs-on: ubuntu-latest
+    needs: Test_S3_Connection  # Only run after S3 Connection test passes
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run S3 File Exists Test
+        env:
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          S3_FILE_KEY: ${{ secrets.S3_FILE_KEY }}
+        run: python -m pytest tests/test_s3_file_exists.py
+
+  # Fifth Job: Run Snyk to scan Infrastructure as Code (Terraform)
   snyk_infra:
     name: Run Snyk to scan Terraform files
     runs-on: ubuntu-latest
-    needs: python_tests  # Only run after Python tests succeed
+    needs: Test_file_exists  # Only run after S3 file existence test passes
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
@@ -75,7 +121,7 @@ jobs:
         with:
           path: terraform/
 
-  # Fourth Job: Build and Push Docker Image
+  # Sixth Job: Build and Push Docker Image
   build_and_push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
@@ -106,11 +152,11 @@ jobs:
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/actions_generator:${{ env.IMAGE_TAG }}
 
-  # Fifth Job: Terraform Apply
-  apply:
+  # Seventh Job: Terraform Plan
+  terraform_plan:
     name: Terraform Plan
-    needs: build_and_push  # Only run after the Docker image is built and pushed
     runs-on: ubuntu-latest
+    needs: build_and_push  # Only run after the Docker image is built and pushed
     defaults:
       run:
         working-directory: terraform
