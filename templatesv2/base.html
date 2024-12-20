@@ -2,12 +2,8 @@
 <html lang="en">
 <head>
     <!-- Preconnect for faster font loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Load fonts with swap display for better loading performance -->
-    <link rel="preconnect" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <!-- Preload the main CSS file -->
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
     <link rel="preload" href="{{ url_for('static', filename='css/styles.css') }}" as="style" onload="this.rel='stylesheet'">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/custom.png') }}">
     <meta charset="UTF-8">
