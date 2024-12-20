@@ -55,6 +55,7 @@ This Flask web application generates YAML files from templates, designed with a 
 
 - Using cloudflares provider, we can add a dns record to the domain which adds a new CNAME record(app.)
 - The value for this CNAME record is assigned dynamically to the elastic IP of ther load balancer where SSL termination will occur which is retrieved from ACM(Amazon Secret manager)
+- This ensures that a secure connection is made from the user to cloudflare and from cloudflare to the orgin server(ECS Cluster)
 
 ## CI/CD Pipeline
 
