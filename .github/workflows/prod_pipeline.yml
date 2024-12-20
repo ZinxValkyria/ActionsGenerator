@@ -188,7 +188,7 @@ jobs:
           EOF
       - name: Terraform Init
         run: terraform init
-      - name: Terraform Plan
-        run: terraform plan
+      - name: Terraform Apply
+        run: terraform apply -var="image_tag=${{needs.build_and_push.outputs.IMAGE_TAG}}" --auto-approve
       - name: Cleanup Secrets
         run: rm -f secrets.auto.tfvars
