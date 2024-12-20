@@ -1,4 +1,4 @@
-name: Run Tests and Deploy
+name: Run E2E Tests and Test S3 Connection
 
 on:
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
     - name: Run End-to-End Tests
       run: python -m pytest tests/test_routes.py
 
-  deploy:
+  Test_S3_Connection:
     runs-on: ubuntu-latest
 
     steps:
