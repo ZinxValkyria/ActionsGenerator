@@ -3,7 +3,7 @@ name: MY STAGING PIPELINE
 on:
   push:
     branches:
-      - hotfix/main
+      - staging
   workflow_dispatch:
 
 permissions:
