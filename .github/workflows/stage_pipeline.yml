@@ -114,6 +114,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+         terraform_version: "1.5.7"  # You can specify your desired version
+      - name: Terraform Init
+        run: terraform init
+        working-directory: terraform
       - name: Terraform Init
         run: terraform init
         working-directory: terraform
@@ -186,6 +193,10 @@ jobs:
           cloudflare_zone_id = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
           new_relic_license_key = "${{ secrets.NEW_RELIC_LICENSE_KEY }}"
           EOF
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+         terraform_version: "1.5.7"  # You can specify your desired version
       - name: Terraform Init
         run: terraform init
       - name: Terraform Plan
