@@ -29,6 +29,9 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
       # Snyk dependency scan (creates SARIF)
       - name: Snyk Python dependency scan (SARIF)
         run: snyk test --all-projects --sarif-file-output=snyk-python.sarif
@@ -41,7 +44,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      # Merge SARIF files (optional: if you want one Python SARIF report)
+      # Merge SARIF files (optional: for a unified Python report)
       - name: Merge SARIF reports (optional)
         run: |
           jq -s '.[0].runs += .[1].runs | .[0]' snyk-python.sarif snyk-python-code.sarif > snyk-python-merged.sarif
@@ -53,7 +56,6 @@ jobs:
 
       # --- TERRAFORM SCANNING ---
 
-      # Set up Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -62,6 +64,9 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: terraform/
+
+      - name: Install jq (for SARIF merging)
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       # Snyk IaC scan (creates SARIF)
       - name: Snyk Terraform IaC scan (SARIF)
