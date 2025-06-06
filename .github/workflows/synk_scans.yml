@@ -3,7 +3,7 @@ name: Snyk Terraform IaC Security Scanning
 on: 
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   snyk-iac:
