@@ -1,4 +1,4 @@
-name: Snyk Python Security Debug
+name: Snyk Python Security Minimal
 
 on: 
   push:
@@ -18,47 +18,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- Python Setup ---
+      - name: List files (for debugging)
+        run: ls -l
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        run: |
-          pip install -r requirements.txt
-          pip list
+        run: pip install -r requirements.txt
 
-      # --- Python Dependency Scan (Debug) ---
-      - name: Debug Python dependency scan
-        run: |
-          echo "=== Dependency scan start: $(date) ==="
-          snyk test --sarif-file-output=snyk-python-deps.sarif --file=requirements.txt --debug
-          echo "=== Dependency scan end: $(date) ==="
-          ls -lah
+      - name: Snyk dependency scan
+        run: snyk test --sarif-file-output=snyk-python-deps.sarif --file=requirements.txt
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
 
-      - name: Upload Python dependency SARIF to Security tab
-        if: always()
+      - name: Upload SARIF to Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-python-deps.sarif
-
-      # --- Python Code Scan (Debug) ---
-      - name: Debug Python code scan
-        run: |
-          echo "=== Code scan start: $(date) ==="
-          snyk code test --sarif-file-output=snyk-python-code.sarif --debug src/
-          echo "=== Code scan end: $(date) ==="
-          ls -lah
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        continue-on-error: true
-
-      - name: Upload Python code SARIF to Security tab
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk-python-code.sarif
