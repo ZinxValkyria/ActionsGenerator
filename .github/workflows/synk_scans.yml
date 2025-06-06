@@ -18,15 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Snyk CLI
-        run: npm install -g snyk
-
       # --- Terraform (IaC) Scan ---
       - name: Snyk IaC scan (SARIF)
+        uses: snyk/actions/iac@master
         continue-on-error: true
-        run: snyk iac test terraform/ --sarif-file-output=snyk-terraform.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk-terraform.sarif terraform/
 
       - name: Upload Terraform SARIF to Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -44,10 +43,12 @@ jobs:
 
       # --- Python Code Scan ---
       - name: Snyk Python code scan (SARIF)
+        uses: snyk/actions/python@master
         continue-on-error: true
-        run: snyk code test --sarif-file-output=snyk-python-code.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: code test --sarif-file-output=snyk-python-code.sarif
 
       - name: Upload Python code SARIF to Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -56,10 +57,12 @@ jobs:
 
       # --- Python Dependency Scan ---
       - name: Snyk Python dependency scan (SARIF)
+        uses: snyk/actions/python@master
         continue-on-error: true
-        run: snyk test --sarif-file-output=snyk-python-deps.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: test --sarif-file-output=snyk-python-deps.sarif
 
       - name: Upload Python dependency SARIF to Security tab
         uses: github/codeql-action/upload-sarif@v3
