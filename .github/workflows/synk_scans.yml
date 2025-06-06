@@ -1,4 +1,4 @@
-name: Snyk IaC and Python Security Scanning
+name: Snyk Python Security Debug
 
 on: 
   push:
@@ -18,20 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- Terraform (IaC) Scan ---
-      - name: Snyk IaC scan (SARIF)
-        uses: snyk/actions/iac@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk-terraform.sarif terraform/
-
-      - name: Upload Terraform SARIF to Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk-terraform.sarif
-
       # --- Python Setup ---
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,32 +25,40 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip list
 
-      # --- Python Code Scan ---
-      - name: Snyk Python code scan (SARIF)
-        uses: snyk/actions/python@master
-        continue-on-error: true
+      # --- Python Dependency Scan (Debug) ---
+      - name: Debug Python dependency scan
+        run: |
+          echo "=== Dependency scan start: $(date) ==="
+          snyk test --sarif-file-output=snyk-python-deps.sarif --file=requirements.txt --debug
+          echo "=== Dependency scan end: $(date) ==="
+          ls -lah
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: code test --sarif-file-output=snyk-python-code.sarif
-
-      - name: Upload Python code SARIF to Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk-python-code.sarif
-
-      # --- Python Dependency Scan ---
-      - name: Snyk Python dependency scan (SARIF)
-        uses: snyk/actions/python@master
         continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: test --sarif-file-output=snyk-python-deps.sarif
 
       - name: Upload Python dependency SARIF to Security tab
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-python-deps.sarif
+
+      # --- Python Code Scan (Debug) ---
+      - name: Debug Python code scan
+        run: |
+          echo "=== Code scan start: $(date) ==="
+          snyk code test --sarif-file-output=snyk-python-code.sarif --debug src/
+          echo "=== Code scan end: $(date) ==="
+          ls -lah
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+
+      - name: Upload Python code SARIF to Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-python-code.sarif
