@@ -1,6 +1,6 @@
 name: Snyk Python Security Minimal
 
-on: 
+on:
   push:
     branches:
       - dev
@@ -11,15 +11,12 @@ on:
 
 jobs:
   snyk-security:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: List files (for debugging)
-        run: ls -l
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,6 +25,9 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
 
       - name: Snyk dependency scan
         run: snyk test --sarif-file-output=snyk-python-deps.sarif --file=requirements.txt
