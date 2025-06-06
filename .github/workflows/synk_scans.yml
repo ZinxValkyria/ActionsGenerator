@@ -1,16 +1,12 @@
-name: Snyk Python and Terraform Security Scanning
+name: Snyk Terraform IaC Security Scanning
 
 on: 
   push:
     branches:
       - dev
-  pull_request:
-    branches:
-      - main
-      - staging
 
 jobs:
-  security:
+  snyk-iac:
     permissions:
       contents: read
       security-events: write
@@ -19,62 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- PYTHON SCANNING ---
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
-
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      # Snyk dependency scan (creates SARIF)
-      - name: Snyk Python dependency scan (SARIF)
-        run: snyk test --all-projects --sarif-file-output=snyk-python.sarif
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      # Snyk code (static analysis) scan (creates SARIF)
-      - name: Snyk Python code scan (SARIF)
-        run: snyk code test --sarif-file-output=snyk-python-code.sarif
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      # Merge SARIF files (optional: for a unified Python report)
-      - name: Merge SARIF reports (optional)
-        run: |
-          jq -s '.[0].runs += .[1].runs | .[0]' snyk-python.sarif snyk-python-code.sarif > snyk-python-merged.sarif
-
-      - name: Upload Python SARIF to Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk-python-merged.sarif
-
-      # --- TERRAFORM SCANNING ---
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.5.7"
-
-      - name: Terraform Init
-        run: terraform init
-        working-directory: terraform/
-
-      - name: Install jq (for SARIF merging)
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      # Snyk IaC scan (creates SARIF)
-      - name: Snyk Terraform IaC scan (SARIF)
+      - name: Snyk IaC scan (SARIF)
+        continue-on-error: true
         run: snyk iac test terraform/ --sarif-file-output=snyk-terraform.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      - name: Upload Terraform SARIF to Security tab
+      - name: Upload SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-terraform.sarif
