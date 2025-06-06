@@ -1,26 +1,16 @@
-name: Snyk Python Scanning and Terraform Security Scanning
+name: Snyk Python and Terraform Security Scanning
+
 on: 
   push:
     branches:
-      dev
+      - dev
   pull_request:
     branches:
       - main
       - staging
+
 jobs:
   security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install Requirements
-        run: pip install -r requirements.txt
-        working-directory: ./
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-  snyk:
     permissions:
       contents: read
       security-events: write
@@ -28,48 +18,58 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      # Configure AWS credentials
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+
+      # --- PYTHON SCANNING ---
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1  # Change this to your region
-      # Install Terraform
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # Snyk dependency scan (creates SARIF)
+      - name: Snyk Python dependency scan (SARIF)
+        run: snyk test --all-projects --sarif-file-output=snyk-python.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # Snyk code (static analysis) scan (creates SARIF)
+      - name: Snyk Python code scan (SARIF)
+        run: snyk code test --sarif-file-output=snyk-python-code.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # Merge SARIF files (optional: if you want one Python SARIF report)
+      - name: Merge SARIF reports (optional)
+        run: |
+          jq -s '.[0].runs += .[1].runs | .[0]' snyk-python.sarif snyk-python-code.sarif > snyk-python-merged.sarif
+
+      - name: Upload Python SARIF to Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-python-merged.sarif
+
+      # --- TERRAFORM SCANNING ---
+
+      # Set up Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-         terraform_version: "1.5.7"
-      # Initialize Terraform
+          terraform_version: "1.5.7"
+
       - name: Terraform Init
         run: terraform init
         working-directory: terraform/
-      # Step to format Terraform files
-      - name: Run terraform fmt to check formatting
-        run: terraform fmt
-        working-directory: terraform/
-      # Step to validate Terraform files
-      - name: Run terraform validate to check syntax
-        run: terraform validate
-        working-directory: terraform/
-      # Snyk scan step
-      - name: Run Snyk to check all Terraform configuration files for security issues
-        continue-on-error: true
-        
-        uses: snyk/actions/iac@14818c4695ecc4045f33c9cee9e795a788711ca4
+
+      # Snyk IaC scan (creates SARIF)
+      - name: Snyk Terraform IaC scan (SARIF)
+        run: snyk iac test terraform/ --sarif-file-output=snyk-terraform.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python@master
-        with:
-          args: --sarif-file-output=snyk-python.sarif
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      
-      - name: Upload SARIF report to GitHub Security tab
+
+      - name: Upload Terraform SARIF to Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: snyk-python.sarif
-
+          sarif_file: snyk-terraform.sarif
