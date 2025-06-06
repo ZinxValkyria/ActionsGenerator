@@ -1,25 +1,24 @@
-name: Snyk Terraform IaC Security
+name: Snyk Terraform IaC Scan
 
 on:
   push:
     branches:
-      - dev
+      - staging
   pull_request:
     branches:
       - main
       - staging
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
-  snyk-iac-security:
+  snyk-iac:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@v4
-
-      - name: List files (for debugging)
-        run: ls -l
 
       - name: Install Snyk CLI
         run: npm install -g snyk
