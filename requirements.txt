@@ -1,5 +1,5 @@
 Flask
-PyYAML
+PyYAML==3.13
 pytest
 newrelic
 flask
