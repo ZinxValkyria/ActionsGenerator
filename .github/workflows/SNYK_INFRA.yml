@@ -1,4 +1,4 @@
-name: Snyk Terraform IaC Scan
+name: Snyk 8.6.4
 
 on:
   push:
