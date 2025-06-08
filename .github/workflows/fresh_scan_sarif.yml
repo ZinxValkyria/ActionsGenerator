@@ -1,0 +1,30 @@
+name: Snyk Terraform IaC Security Scanning
+
+on: 
+  push:
+    branches:
+      - dev
+
+jobs:
+  snyk-iac:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Snyk IaC scan (SARIF)
+        continue-on-error: true
+        run: snyk iac test terraform/ --sarif-file-output=snyk-terraform.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-terraform.sarif
