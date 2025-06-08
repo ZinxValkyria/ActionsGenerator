@@ -1,7 +1,7 @@
 Flask
-PyYAML==3.13
+PyYAML
 pytest
 newrelic
 flask
-boto3
+boto3==1.9.0
 python-dotenv
