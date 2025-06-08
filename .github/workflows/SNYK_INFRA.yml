@@ -1,4 +1,4 @@
-name: Snyk test 8_6
+name: Snyk Terraform 8.6.2
 
 on:
   push:
@@ -33,16 +33,22 @@ jobs:
       - name: List workspace files for debugging
         run: ls -lh
 
+      - name: Show SARIF file head (debug)
+        run: head -40 snyk-terraform.sarif
+
       - name: Fix SARIF severity (if needed)
         run: |
           if grep -q '"security-severity": "undefined"' snyk-terraform.sarif; then
+            echo "Fixing SARIF: replacing undefined severities with 5.0"
             sed -i 's/"security-severity": "undefined"/"security-severity": 5.0/g' snyk-terraform.sarif
+          else
+            echo "No undefined severities found."
           fi
 
-      - name: Check SARIF file exists
+      - name: Check SARIF file exists and is not empty
         run: |
-          if [ ! -f snyk-terraform.sarif ]; then
-            echo "SARIF file not found! Exiting."
+          if [ ! -s snyk-terraform.sarif ]; then
+            echo "SARIF file missing or empty! Failing the job."
             exit 1
           fi
 
