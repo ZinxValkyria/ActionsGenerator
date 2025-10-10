@@ -49,7 +49,7 @@ jobs:
         with:
           version: 'latest'
       - name: Monitor Projects to Snyk
-        run: snyk monitor --all-projects \
+        run: snyk monitor
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.head_ref }} \
           --project-name=actions-generator-ci
