@@ -1,9 +1,5 @@
 name: Snyk Security Scans
 
-concurrency:
-  group: snyk-security-${{ github.event.number || github.run_id }}
-  cancel-in-progress: false
-
 on:
   pull_request:
     branches:
@@ -16,28 +12,46 @@ permissions:
 jobs:
   snyk-scans:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        scan-type: [dependency, sast, iac]
-      fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Snyk Dependency Scan (Python)
-      - name: Snyk Dependency Scan
-        if: matrix.scan-type == 'dependency'
+      - name: Snyk Dependency Test
         uses: snyk/actions/python@master
         env:
-          SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_NOONEBLAIN }}
         with:
-          command: monitor
-          args: --org=${{secrets.SNYK_ORG_ID_NOONEBLAIN}} --severity-threshold=high --target-reference=${{ github.head_ref }}
+          command: test
+          args: >
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+            --severity-threshold=high
 
-      # You can copy the above for other orgs, changing the org/token and adding more for SAST/IaC as needed.
+      - name: Snyk IaC Test
+        uses: snyk/actions/iac@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_NOONEBLAIN }}
+        with:
+          command: test
+          args: >
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+            --severity-threshold=high
+
+      - name: Snyk Monitor to UI
+        uses: snyk/actions/setup@master
+        with:
+          version: 'latest'
+      - name: Monitor Projects to Snyk
+        run: snyk monitor --all-projects \
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+          --target-reference=${{ github.head_ref }} \
+          --project-name=actions-generator-ci
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_NOONEBLAIN }}
