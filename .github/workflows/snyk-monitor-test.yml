@@ -1,0 +1,40 @@
+name: Snyk Security Scans
+concurrency:
+  group: snyk-security-${{ github.event.number || github.run_id }}
+  cancel-in-progress: false
+
+on:
+  pull_request:
+    branches:
+      - rc/*
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  snyk-scans:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        scan-type: [dependency, sast, iac]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+      - run: npm install
+
+      # ... SCAN STEPS OMITTED FOR BREVITY ...
+
+      # After all tests
+      - name: Monitor to Nooneblain Org
+        run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.head_ref }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_NOONEBLAIN }}
+
+      # - name: Monitor to My Second Org
+      #   run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_SECONDORG }} --target-reference=${{ github.head_ref }}
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_SECONDORG }}
