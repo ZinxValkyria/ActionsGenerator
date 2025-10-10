@@ -35,7 +35,7 @@ jobs:
         if: matrix.scan-type == 'dependency'
         uses: snyk/actions/python@master
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_NOONEBLAIN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_ }}
         with:
           command: monitor
           args: --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --severity-threshold=high --target-reference=${{ github.head_ref }}
