@@ -54,4 +54,3 @@ jobs:
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
             --target-reference=${{ github.head_ref }}
             --project-name=actions-generator-ci
-            --all-projects
