@@ -35,9 +35,9 @@ jobs:
         if: matrix.scan-type == 'dependency'
         uses: snyk/actions/python@master
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_TOKEN: ${{secrets.SNYK_TOKEN}}
         with:
           command: monitor
-          args: --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --severity-threshold=high --target-reference=${{ github.head_ref }}
+          args: --org=${{secrets.SNYK_ORG_ID_NOONEBLAIN}} --severity-threshold=high --target-reference=${{ github.head_ref }}
 
       # You can copy the above for other orgs, changing the org/token and adding more for SAST/IaC as needed.
