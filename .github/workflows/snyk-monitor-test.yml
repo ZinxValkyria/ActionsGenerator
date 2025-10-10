@@ -1,4 +1,5 @@
 name: Snyk Security Scans
+
 concurrency:
   group: snyk-security-${{ github.event.number || github.run_id }}
   cancel-in-progress: false
@@ -20,25 +21,23 @@ jobs:
         scan-type: [dependency, sast, iac]
       fail-fast: false
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'  # Adjust to your Flask project's Python version
+          python-version: '3.11'
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # ... Your Snyk scan steps for each matrix entry ...
-
-      - name: Monitor to Nooneblain Org
-        run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.head_ref }}
+      # Snyk Dependency Scan (Python)
+      - name: Snyk Dependency Scan
+        if: matrix.scan-type == 'dependency'
+        uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_NOONEBLAIN }}
+        with:
+          command: monitor
+          args: --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --severity-threshold=high --target-reference=${{ github.head_ref }}
 
-      # - name: Monitor to My Second Org
-      #   run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_SECONDORG }} --target-reference=${{ github.head_ref }}
-      #   env:
-      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_SECONDORG }}
+      # You can copy the above for other orgs, changing the org/token and adding more for SAST/IaC as needed.
