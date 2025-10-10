@@ -20,15 +20,19 @@ jobs:
         scan-type: [dependency, sast, iac]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          node-version: ${{ vars.NODE_VERSION }}
-      - run: npm install
+          python-version: '3.11'  # Adjust to your Flask project's Python version
 
-      # ... SCAN STEPS OMITTED FOR BREVITY ...
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      # After all tests
+      # ... Your Snyk scan steps for each matrix entry ...
+
       - name: Monitor to Nooneblain Org
         run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.head_ref }}
         env:
