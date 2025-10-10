@@ -27,7 +27,7 @@ jobs:
       - name: Snyk Dependency Test
         uses: snyk/actions/python@master
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN}}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: test
           args: >
@@ -37,7 +37,7 @@ jobs:
       - name: Snyk IaC Test
         uses: snyk/actions/iac@master
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN}}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: test
           args: >
@@ -45,13 +45,13 @@ jobs:
             --severity-threshold=high
 
       - name: Snyk Monitor to UI
-        uses: snyk/actions/setup@master
-        with:
-          version: 'latest'
-      - name: Monitor Projects to Snyk
-        run: snyk monitor
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.head_ref }} \
-          --project-name=actions-generator-ci
+        uses: snyk/actions/python@master
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_NOONEBLAIN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN}}
+        with:
+          command: monitor
+          args: >
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+            --target-reference=${{ github.head_ref }}
+            --project-name=actions-generator-ci
+            --all-projects
