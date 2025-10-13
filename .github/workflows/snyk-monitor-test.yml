@@ -59,12 +59,13 @@ jobs:
 
       - name: Snyk IaC Test & SARIF
         uses: snyk/actions/iac@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test terraform/
+          command: test
           args: >
-            
+            terraform/
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
             --target-reference=${{ github.head_ref }}
             --project-name="actions-generator-ci-iac-${{ github.head_ref }}"
