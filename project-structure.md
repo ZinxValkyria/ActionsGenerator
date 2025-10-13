@@ -23,7 +23,7 @@ This Flask web application generates YAML files from templates, designed with a 
 
 - Dynamic YAML file generation from templates
 - Secure, scalable web application
-- Comprehensive CI/CD pipeline
+- Comprehensive CICD pipeline
 - Infrastructure as Code (IaC) with Terraform
 - AWS ECS deployment
 - New Relic monitoring integration
