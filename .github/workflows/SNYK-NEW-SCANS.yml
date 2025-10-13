@@ -38,7 +38,7 @@ jobs:
       - name: Snyk Open Source monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk monitor --all-projects || true
+        run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.head_ref }} || true
 
       - name: Snyk IaC test and report
         env:
