@@ -24,30 +24,21 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Snyk Dependency Test
+      - name: Snyk Dependency Monitor to UI
         uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test
+          command: monitor
           args: >
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --severity-threshold=high
+            --target-reference=${{ github.head_ref }}
+            --project-name=actions-generator-ci
 
-      - name: Snyk IaC Test
+      - name: Snyk IaC Monitor to UI
         uses: snyk/actions/iac@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          args: >
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --severity-threshold=high
-
-      - name: Snyk Monitor to UI
-        uses: snyk/actions/python@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN}}
         with:
           command: monitor
           args: >
