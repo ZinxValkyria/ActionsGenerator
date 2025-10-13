@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - rc/*
-
   push:
     branches:
       - main
@@ -17,7 +16,6 @@ permissions:
 jobs:
   snyk-scans:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,8 +28,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # --- Dependency Scan ---
-      - name: Snyk Dependency Scan (Test Only on PR)
+      # --- Dependency Scanning ---
+      - name: Snyk Dependency Test (PR)
         if: github.event_name == 'pull_request'
         uses: snyk/actions/python@master
         env:
@@ -40,15 +38,17 @@ jobs:
           command: test
           args: >
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+            --report
             --sarif-file-output=snyk-deps.sarif
+            --project-name=actions-generator-ci:deps
 
-      - name: Upload Snyk Dependency Results to GitHub Security Tab
+      - name: Upload Snyk Dependency SARIF
         if: github.event_name == 'pull_request'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-deps.sarif
 
-      - name: Snyk Dependency Monitor to UI (main/rc only)
+      - name: Snyk Dependency Monitor (main/rc)
         if: github.event_name == 'push'
         uses: snyk/actions/python@master
         env:
@@ -57,10 +57,10 @@ jobs:
           command: monitor
           args: >
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --project-name=actions-generator-ci
+            --project-name=actions-generator-ci:deps
 
-      # --- IaC Scan ---
-      - name: Snyk IaC Scan (Test Only on PR)
+      # --- IaC Scanning ---
+      - name: Snyk IaC Test (PR)
         if: github.event_name == 'pull_request'
         uses: snyk/actions/iac@master
         env:
@@ -69,15 +69,17 @@ jobs:
           command: test
           args: >
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+            --report
             --sarif-file-output=snyk-iac.sarif
+            --project-name=actions-generator-ci:iac
 
-      - name: Upload Snyk IaC Results to GitHub Security Tab
+      - name: Upload Snyk IaC SARIF
         if: github.event_name == 'pull_request'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-iac.sarif
 
-      - name: Snyk IaC Monitor to UI (main/rc only)
+      - name: Snyk IaC Monitor (main/rc)
         if: github.event_name == 'push'
         uses: snyk/actions/iac@master
         env:
@@ -86,4 +88,4 @@ jobs:
           command: monitor
           args: >
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --project-name=actions-generator-ci
+            --project-name=actions-generator-ci:iac
