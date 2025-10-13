@@ -33,7 +33,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test
+          command: test terraform/
           args: >
             --file=requirements.txt
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
