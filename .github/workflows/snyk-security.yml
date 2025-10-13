@@ -1,3 +1,54 @@
+name: Snyk Security
+
+on:
+  pull_request:
+    branches: ["rc/*"]
+
+permissions:
+  contents: read
+
+jobs:
+  snyk:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        if: exists('requirements.txt')
+        run: pip install -r requirements.txt
+
+      - name: Set up Snyk CLI to check for security issues
+        uses: snyk/actions/setup@v3
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk Code test
+        run: snyk code test --sarif > snyk-code.sarif || true
+
+      - name: Snyk Open Source monitor
+        run: snyk monitor --all-projects
+
+      - name: Snyk IaC test and report
+        run: snyk iac test --report || true
+
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-code.sarif
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
