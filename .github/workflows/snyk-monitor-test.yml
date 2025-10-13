@@ -33,44 +33,31 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # === Dependency Scan ===
-      - name: Snyk Dependency Scan
-        if: matrix.scan-type == 'dependency'
-        uses: snyk/actions/python@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
-          args: >
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --severity-threshold=high
-            --project-name=actions-generator-ci:deps-${{ github.base_ref }}
-            --target-reference=${{ github.head_ref }}
+      - name: Set up Snyk
+        uses: snyk/actions/setup@v4
 
-      # === IaC Scan ===
-      - name: Snyk IaC Scan
-        if: matrix.scan-type == 'iac'
-        uses: snyk/actions/iac@master
+      - name: Run Snyk Scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
-          args: >
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --severity-threshold=high
-            --project-name=actions-generator-ci:iac-${{ github.base_ref }}
-            --target-reference=${{ github.head_ref }}
-
-      # === SAST Scan ===
-      - name: Snyk SAST Scan
-        if: matrix.scan-type == 'sast'
-        uses: snyk/actions/code@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: monitor
-          args: >
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --severity-threshold=high
-            --project-name=actions-generator-ci:sast-${{ github.base_ref }}
-            --target-reference=${{ github.head_ref }}
+        run: |
+          if [ "${{ matrix.scan-type }}" == "dependency" ]; then
+            snyk monitor --file=requirements.txt \
+              --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+              --severity-threshold=high \
+              --project-name="actions-generator-ci:deps-${{ github.base_ref }}" \
+              --target-reference=${{ github.head_ref }}
+          
+          elif [ "${{ matrix.scan-type }}" == "iac" ]; then
+            snyk iac test --report \
+              --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+              --severity-threshold=high \
+              --project-name="actions-generator-ci:iac-${{ github.base_ref }}" \
+              --target-reference=${{ github.head_ref }}
+          
+          elif [ "${{ matrix.scan-type }}" == "sast" ]; then
+            snyk code test --report \
+              --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+              --severity-threshold=high \
+              --project-name="actions-generator-ci:sast-${{ github.base_ref }}" \
+              --target-reference=${{ github.head_ref }}
+          fi
