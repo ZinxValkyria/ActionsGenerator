@@ -1,4 +1,8 @@
-name: Snyk Combined Scans with SARIF Reporting
+name: Snyk Security Scans (RC Branch PRs)
+
+concurrency:
+  group: snyk-security-${{ github.event.number || github.run_id }}
+  cancel-in-progress: false
 
 on:
   pull_request:
@@ -10,71 +14,63 @@ permissions:
   security-events: write
 
 jobs:
-  snyk-security-scans:
+  snyk-scans:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    strategy:
+      matrix:
+        scan-type: [dependency, iac, sast]
+      fail-fast: false
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name: Snyk Dependency Scan (Python) & Generate SARIF
+      # === Dependency Scan ===
+      - name: Snyk Dependency Scan
+        if: matrix.scan-type == 'dependency'
         uses: snyk/actions/python@master
-        id: python_scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test
+          command: monitor
           args: >
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --target-reference=${{ github.head_ref }}
             --severity-threshold=high
-            --sarif-file-output=dependency.sarif
-
-      - name: Upload Dependency SARIF
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: dependency.sarif
-
-      - name: Snyk SAST Scan (Node example) & Generate SARIF
-        uses: snyk/actions/node@master
-        id: sast_scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: code test
-          args: >
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+            --project-name=actions-generator-ci:deps-${{ github.base_ref }}
             --target-reference=${{ github.head_ref }}
-            --severity-threshold=high
-            --sarif-file-output=sast.sarif
 
-      - name: Upload SAST SARIF
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: sast.sarif
-
-      - name: Snyk IaC Scan & Generate SARIF
+      # === IaC Scan ===
+      - name: Snyk IaC Scan
+        if: matrix.scan-type == 'iac'
         uses: snyk/actions/iac@master
-        id: iac_scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test
+          command: monitor
           args: >
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-            --target-reference=${{ github.head_ref }}
             --severity-threshold=high
-            --sarif-file-output=iac.sarif
+            --project-name=actions-generator-ci:iac-${{ github.base_ref }}
+            --target-reference=${{ github.head_ref }}
 
-      - name: Upload IaC SARIF
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
+      # === SAST Scan ===
+      - name: Snyk SAST Scan
+        if: matrix.scan-type == 'sast'
+        uses: snyk/actions/code@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          sarif_file: iac.sarif
-
+          command: monitor
+          args: >
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+            --severity-threshold=high
+            --project-name=actions-generator-ci:sast-${{ github.base_ref }}
+            --target-reference=${{ github.head_ref }}
