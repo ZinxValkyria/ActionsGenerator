@@ -14,29 +14,24 @@ permissions:
   security-events: write
 
 jobs:
-  snyk-scans:
+  # Job 1: Dependency and SAST scans
+  code-scans:
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout project source
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Set up Python for dependency scans
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # Install Python dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Set up Snyk CLI (covers all scan types)
       - name: Set up Snyk CLI
         uses: snyk/actions/setup@master
 
-      # Snyk Dependency scan (Python)
       - name: Snyk Dependency Scan (Python)
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -47,18 +42,6 @@ jobs:
             --project-name="actions-generator-ci:deps-${{ github.head_ref }}" \
             --sarif-file-output=dependency.sarif || true
 
-      # Snyk IaC scan (Terraform/HCL)
-      - name: Snyk IaC Scan (Terraform/HCL)
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          snyk iac test terraform/ \
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-            --target-reference=${{ github.head_ref }} \
-            --project-name="actions-generator-ci:iac-${{ github.head_ref }}" \
-            --sarif-file-output=iac.sarif || true
-
-      # Snyk SAST scan (Code Security)
       - name: Snyk SAST Scan (Code Security)
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -69,18 +52,38 @@ jobs:
             --project-name="actions-generator-ci:sast-${{ github.head_ref }}" \
             --sarif-file-output=sast.sarif || true
 
-      # Upload SARIF files to GitHub Security Hub (for code scanning tab)
       - name: Upload Dependency SARIF
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: dependency.sarif
 
-      - name: Upload IaC SARIF
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: iac.sarif
-
       - name: Upload SAST SARIF
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: sast.sarif
+
+  # Job 2: IaC scan only
+  iac-scan:
+    runs-on: ubuntu-latest
+    needs: code-scans
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Snyk IaC Scan (Terraform/HCL)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk iac test terraform/ \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.head_ref }} \
+            --project-name="actions-generator-ci:iac-${{ github.head_ref }}" \
+            --sarif-file-output=iac.sarif || true
+
+      - name: Upload IaC SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: iac.sarif
