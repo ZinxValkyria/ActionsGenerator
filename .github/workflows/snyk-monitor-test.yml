@@ -63,9 +63,8 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test
+          command: test terraform/
           args: >
-            terraform/
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
             --target-reference=${{ github.head_ref }}
             --project-name="actions-generator-ci-iac-${{ github.head_ref }}"
