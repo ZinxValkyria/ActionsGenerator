@@ -18,20 +18,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout project source
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Set up Python for dependency scans
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      # Install Python dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Set up Snyk CLI (covers all scan types)
       - name: Set up Snyk CLI
-        uses: snyk/actions/setup@master
+        uses: snyk/actions/setup@v3
 
+      # Snyk Dependency scan (Python)
       - name: Snyk Dependency Scan (Python)
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -40,9 +45,9 @@ jobs:
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
             --target-reference=${{ github.head_ref }} \
             --project-name="actions-generator-ci:deps-${{ github.head_ref }}" \
-            --severity-threshold=high \
             --sarif-file-output=dependency.sarif || true
 
+      # Snyk IaC scan (Terraform/HCL)
       - name: Snyk IaC Scan (Terraform/HCL)
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -51,9 +56,9 @@ jobs:
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
             --target-reference=${{ github.head_ref }} \
             --project-name="actions-generator-ci:iac-${{ github.head_ref }}" \
-            --severity-threshold=high \
             --sarif-file-output=iac.sarif || true
 
+      # Snyk SAST scan (Code Security)
       - name: Snyk SAST Scan (Code Security)
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -62,9 +67,9 @@ jobs:
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
             --target-reference=${{ github.head_ref }} \
             --project-name="actions-generator-ci:sast-${{ github.head_ref }}" \
-            --severity-threshold=high \
             --sarif-file-output=sast.sarif || true
 
+      # Upload SARIF files to GitHub Security Hub (for code scanning tab)
       - name: Upload Dependency SARIF
         uses: github/codeql-action/upload-sarif@v2
         with:
@@ -76,6 +81,3 @@ jobs:
           sarif_file: iac.sarif
 
       - name: Upload SAST SARIF
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: sast.sarif
