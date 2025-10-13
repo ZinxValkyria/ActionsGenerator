@@ -34,7 +34,7 @@ jobs:
 
       # Set up Snyk CLI (covers all scan types)
       - name: Set up Snyk CLI
-        uses: snyk/actions/setup@v3
+        uses: snyk/actions/setup@master
 
       # Snyk Dependency scan (Python)
       - name: Snyk Dependency Scan (Python)
@@ -81,3 +81,6 @@ jobs:
           sarif_file: iac.sarif
 
       - name: Upload SAST SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: sast.sarif
