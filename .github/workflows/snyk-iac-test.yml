@@ -25,13 +25,14 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: test .
+          command: test
           args: >
-            
+            . 
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
             --target-reference=${{ github.head_ref }}
             --project-name="iac-only-${{ github.head_ref }}"
             --sarif-file-output=iac.sarif
+
 
       - name: Upload IaC SARIF
         uses: github/codeql-action/upload-sarif@v3
