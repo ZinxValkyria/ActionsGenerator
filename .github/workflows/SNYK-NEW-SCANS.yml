@@ -43,7 +43,7 @@ jobs:
       - name: Snyk IaC test and report
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk iac test . --report || true
+        run: snyk iac test . --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.base_ref }} --report || true
 
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
