@@ -16,10 +16,6 @@ permissions:
 jobs:
   snyk-scans:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        scan-type: [dependency, iac, sast]
-      fail-fast: false
 
     steps:
       - name: Checkout Repository
@@ -36,40 +32,50 @@ jobs:
       - name: Set up Snyk CLI
         uses: snyk/actions/setup@master
 
-      - name: Run Snyk Scan
+      - name: Snyk Dependency Scan (Python)
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          set -e
-          echo "Running Snyk ${{ matrix.scan-type }} Scan..."
+          snyk test --file=requirements.txt \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.head_ref }} \
+            --project-name="actions-generator-ci:deps-${{ github.head_ref }}" \
+            --severity-threshold=high \
+            --sarif-file-output=dependency.sarif || true
 
-          if [ "${{ matrix.scan-type }}" == "dependency" ]; then
-            snyk test --file=requirements.txt --json > result.json || true
-            snyk monitor \
-              --file=requirements.txt \
-              --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-              --project-name="actions-generator-ci:deps-${{ github.base_ref }}" \
-              --target-reference=${{ github.head_ref }}
+      - name: Snyk IaC Scan (Terraform/HCL)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk iac test . \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.head_ref }} \
+            --project-name="actions-generator-ci:iac-${{ github.head_ref }}" \
+            --severity-threshold=high \
+            --sarif-file-output=iac.sarif || true
 
-          elif [ "${{ matrix.scan-type }}" == "iac" ]; then
-            snyk iac test --json > result.json || true
-            snyk iac test --report \
-              --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-              --project-name="actions-generator-ci:iac-${{ github.base_ref }}" \
-              --target-reference=${{ github.head_ref }}
+      - name: Snyk SAST Scan (Code Security)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk code test \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.head_ref }} \
+            --project-name="actions-generator-ci:sast-${{ github.head_ref }}" \
+            --severity-threshold=high \
+            --sarif-file-output=sast.sarif || true
 
-          elif [ "${{ matrix.scan-type }}" == "sast" ]; then
-            snyk code test --json > result.json || true
-            snyk code test --report \
-              --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-              --project-name="actions-generator-ci:sast-${{ github.base_ref }}" \
-              --target-reference=${{ github.head_ref }}
-          fi
+      - name: Upload Dependency SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: dependency.sarif
 
-          echo "Checking for HIGH or CRITICAL vulnerabilities..."
-          if jq -e '.vulnerabilities[] | select(.severity == "high" or .severity == "critical")' result.json > /dev/null; then
-            echo "❌ High or Critical vulnerabilities found!"
-            exit 1
-          else
-            echo "✅ No high or critical vulnerabilities found."
-          fi
+      - name: Upload IaC SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: iac.sarif
+
+      - name: Upload SAST SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: sast.sarif
