@@ -35,6 +35,11 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk code test . --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.base_ref }} --sarif > snyk-code.sarif || true
 
+      - name: Snyk Code monitor
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk code monitor --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.base_ref }} || true
+
       - name: Snyk Open Source monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
