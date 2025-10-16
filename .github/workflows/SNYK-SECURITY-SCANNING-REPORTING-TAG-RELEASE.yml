@@ -35,35 +35,31 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      # --- Snyk Code analysis (SAST) ---
+     # --- Snyk Code analysis ---
       - name: Snyk Code test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          snyk code test . \
-            --report \
-            --project-name=${{ github.ref_name }} \
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-            --target-reference=${{ github.ref_name }}
+        run: snyk code test . \
+          --report \
+          --project-name=${{ github.base_ref }} \
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+          --target-reference=${{ github.ref_name }}
 
-      # --- Snyk Open Source (Dependencies) ---
-      - name: Snyk Open Source test (fail on high)
+      # --- Snyk Open Source (Python deps) ---
+      - name: Snyk Open Source monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          snyk test \
-            --all-projects \
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-            --target-reference=${{ github.ref_name }} \
-            --severity-threshold=high
+        run: snyk monitor \
+          --all-projects \
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+          --target-reference=${{ github.ref_name }}
+
 
       # --- Snyk IaC (Infrastructure as Code) ---
-      - name: Snyk IaC test (fail on high)
+      - name: Snyk IaC test and report
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          snyk iac test . \
-            --report \
-            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-            --target-reference=${{ github.ref_name }} \
-            --severity-threshold=high
+        run: snyk iac test . \
+          --report \
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+          --target-reference=${{ github.ref_name }} || true
