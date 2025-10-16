@@ -23,34 +23,61 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
 
-      - name: Set up Snyk CLI
+      - name: Set up Snyk CLI to check for security issues
         uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
+      # --- Snyk Code analysis ---
       - name: Snyk Code test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code test . --report --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --project-name="MYAGREPO:releases" --target-reference=${{ github.base_ref }} --sarif > snyk-code.sarif || true 
+        run: snyk code test . \
+          --report \
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+          --project-name="MYAGREPO:releases" \
+          --target-reference=${{ github.base_ref }} \
+          --sarif > snyk-code.sarif || true 
 
       - name: Snyk Code monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code monitor --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --project-name="MYAGREPO:releases" --target-reference=${{ github.base_ref }} --report || true
+        run: snyk code monitor \
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+          --project-name="MYAGREPO:releases" \
+          --target-reference=${{ github.base_ref }} \
+          --report || true
 
+      # --- Snyk Open Source (Python deps) ---
       - name: Snyk Open Source monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --project-name="MYAGREPO:releases" --target-reference=${{ github.base_ref }} || true
+        run: snyk monitor \
+          --file=requirements-dev.txt \
+          --package-manager=pip \
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+          --project-name="MYAGREPO:releases" \
+          --target-reference=${{ github.base_ref }} || true
 
+      # --- Snyk IaC (Infrastructure as Code) ---
       - name: Snyk IaC test and report
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk iac test . --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --project-name="MYAGREPO:releases" --target-reference=${{ github.base_ref }} --report || true
+        run: snyk iac test . \
+          --sarif-file-output=snyk-iac.sarif \
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+          --project-name="MYAGREPO:releases" \
+          --target-reference=${{ github.base_ref }} || true
 
+      # --- Upload SARIF reports to GitHub Security Dashboard ---
       - name: Upload Code scan results
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-code.sarif
+
+      - name: Upload IaC scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk-iac.sarif
