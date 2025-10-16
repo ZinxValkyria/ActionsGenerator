@@ -36,6 +36,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk code test . \
           --report \
+          --project-name=${{ github.base_ref }}
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.base_ref }} \
           
@@ -43,15 +44,18 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk code monitor \
+          --report || true
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.base_ref }} \
-          --report || true
+          --project-name=${{ github.base_ref }}
+
 
       # --- Snyk Open Source (Python deps) ---
       - name: Snyk Open Source monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk monitor \
+          --all-projects
           --file=requirements.txt \
           --package-manager=pip \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
