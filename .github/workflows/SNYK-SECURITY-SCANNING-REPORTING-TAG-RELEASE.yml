@@ -7,20 +7,16 @@ on:
 
 permissions:
   contents: read
-  security-events: write
-  actions: read
 
 jobs:
   snyk:
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
       actions: read
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,12 +26,12 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Set up Snyk CLI
+      - name: Set up Snyk CLI to check for security issues
         uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-     # --- Snyk Code analysis ---
+      # --- Snyk Code analysis ---
       - name: Snyk Code test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -43,7 +39,7 @@ jobs:
           --report \
           --project-name=${{ github.base_ref }} \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.ref_name }}
+          --target-reference=${{ github.base_ref }}
 
       # --- Snyk Open Source (Python deps) ---
       - name: Snyk Open Source monitor
@@ -52,7 +48,7 @@ jobs:
         run: snyk monitor \
           --all-projects \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-          --target-reference=${{ github.ref_name }} || true
+          --target-reference=${{ github.base_ref }}
 
 
       # --- Snyk IaC (Infrastructure as Code) ---
@@ -61,6 +57,5 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk iac test . \
           --report \
-          --project-name=${{ github.base_ref }} \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.ref_name }} || true
+          --target-reference=${{ github.base_ref }} || true
