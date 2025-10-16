@@ -37,7 +37,6 @@ jobs:
         run: snyk code test . \
           --report \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --project-name="MYAGREPO:releases" \
           --target-reference=${{ github.base_ref }} \
           
       - name: Snyk Code monitor
@@ -45,7 +44,6 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk code monitor \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --project-name="MYAGREPO:releases" \
           --target-reference=${{ github.base_ref }} \
           --report || true
 
@@ -57,7 +55,6 @@ jobs:
           --file=requirements.txt \
           --package-manager=pip \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --project-name="MYAGREPO:releases" \
           --target-reference=${{ github.base_ref }} || true
 
       # --- Snyk IaC (Infrastructure as Code) ---
