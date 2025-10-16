@@ -44,6 +44,8 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk code monitor \
+          --report \
+          --project-name=${{ github.base_ref }} \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.base_ref }} 
 
