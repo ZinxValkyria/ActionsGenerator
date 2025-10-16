@@ -36,7 +36,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk code test . \
-          --project-name="SAST SCANS"
+          --project-name="SAST SCANS" \
           --report \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.ref_name }}
@@ -47,7 +47,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk monitor \
           --all-projects \
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.ref_name }}
 
 
