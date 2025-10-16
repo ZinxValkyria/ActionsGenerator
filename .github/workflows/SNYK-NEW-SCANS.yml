@@ -55,7 +55,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk monitor \
-          --file=requirements-dev.txt \
+          --file=requirements.txt \
           --package-manager=pip \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --project-name="MYAGREPO:releases" \
