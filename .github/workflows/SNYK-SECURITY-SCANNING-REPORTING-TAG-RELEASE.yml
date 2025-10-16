@@ -48,7 +48,7 @@ jobs:
         run: snyk monitor \
           --all-projects \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.ref_name }}
+          --target-reference="Dependency scanning"
 
 
       # --- Snyk IaC (Infrastructure as Code) ---
