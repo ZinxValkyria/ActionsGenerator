@@ -37,7 +37,6 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk code test . \
           --report \
-          --project-name=${{ github.base_ref }} \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.ref_name }}
 
