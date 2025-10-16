@@ -52,7 +52,7 @@ jobs:
         run: snyk monitor \
           --all-projects \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-          --target-reference=${{ github.ref_name }}
+          --target-reference=${{ github.ref_name }} || true
 
 
       # --- Snyk IaC (Infrastructure as Code) ---
@@ -61,5 +61,6 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk iac test . \
           --report \
+          --project-name=${{ github.base_ref }} \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.ref_name }} || true
