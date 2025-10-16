@@ -33,22 +33,22 @@ jobs:
       - name: Snyk Code test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code test . --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.base_ref }} --sarif > snyk-code.sarif || true
+        run: snyk code test . --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --project-name="MYAGREPO:releases" --target-reference=${{ github.base_ref }} --sarif > snyk-code.sarif || true --report
 
       - name: Snyk Code monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code monitor --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.base_ref }} || true
+        run: snyk code monitor --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --project-name="MYAGREPO:releases" --target-reference=${{ github.base_ref }} || true --report
 
       - name: Snyk Open Source monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.base_ref }} || true
+        run: snyk monitor --all-projects --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --project-name="MYAGREPO:releases" --target-reference=${{ github.base_ref }} || true
 
       - name: Snyk IaC test and report
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk iac test . --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --target-reference=${{ github.base_ref }} --report || true
+        run: snyk iac test . --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --project-name="MYAGREPO:releases" --target-reference=${{ github.base_ref }} --report || true
 
       - name: Upload result to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
