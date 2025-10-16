@@ -1,0 +1,69 @@
+name: Snyk Security latest from marketplace
+
+on:
+  push:
+    tags:
+      - "v*"   # triggers on any tag starting with 'v', e.g., v1.0.0, v2.1.0-preprod
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  snyk:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set up Snyk CLI
+        uses: snyk/actions/setup@v4
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # --- Snyk Code analysis (SAST) ---
+      - name: Snyk Code test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk code test . \
+            --report \
+            --project-name=${{ github.ref_name }} \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.ref_name }}
+
+      # --- Snyk Open Source (Dependencies) ---
+      - name: Snyk Open Source test (fail on high)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk test \
+            --all-projects \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.ref_name }} \
+            --severity-threshold=high
+
+      # --- Snyk IaC (Infrastructure as Code) ---
+      - name: Snyk IaC test (fail on high)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk iac test . \
+            --report \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.ref_name }} \
+            --severity-threshold=high
