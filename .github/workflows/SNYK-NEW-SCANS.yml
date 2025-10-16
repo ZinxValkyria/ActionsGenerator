@@ -39,8 +39,7 @@ jobs:
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --project-name="MYAGREPO:releases" \
           --target-reference=${{ github.base_ref }} \
-          --sarif > snyk-code.sarif || true 
-
+          
       - name: Snyk Code monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -66,18 +65,6 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk iac test . \
-          --sarif-file-output=snyk-iac.sarif \
+          --report
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --project-name="MYAGREPO:releases" \
           --target-reference=${{ github.base_ref }} || true
-
-      # --- Upload SARIF reports to GitHub Security Dashboard ---
-      - name: Upload Code scan results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk-code.sarif
-
-      - name: Upload IaC scan results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk-iac.sarif
