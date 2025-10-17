@@ -28,7 +28,7 @@ The application will save users time and effort by simplifying the creation and 
 
 - User-friendly interface for creating GitHub Actions YAML files.
 - Ability to customize various elements of the workflow.
-- Scalable infrastructure managed by Terraform.
+- Scalable infrastructure managed by tff.
 - Integrated monitoring and alerting for performance and reliability.
 
 ## Technologies
