@@ -39,7 +39,7 @@ jobs:
           --report \
           --project-name=${{ github.base_ref }} \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.base_ref }}
+          --target-reference=${{ github.ref_name }}
 
       # --- Snyk Open Source (Python deps) ---
       - name: Snyk Open Source monitor
@@ -48,7 +48,7 @@ jobs:
         run: snyk monitor \
           --all-projects \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-          --target-reference=${{ github.base_ref }}
+          --target-reference=${{ github.ref_name }}
 
 
       # --- Snyk IaC (Infrastructure as Code) ---
@@ -58,4 +58,4 @@ jobs:
         run: snyk iac test . \
           --report \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.base_ref }} || true
+          --target-reference=${{ github.ref_name }} || true
