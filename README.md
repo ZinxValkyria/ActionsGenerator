@@ -31,7 +31,7 @@ The application will save users time and effort by simplifying the creation and 
 - Scalable infrastructure managed by Terraform.
 - Integrated monitoring and alerting for performance and reliability.
 
-## Technologies Used
+## Technologies
 
 - **Frontend**: HTML,CSS,Javascript
 - **Backend**: Flask server (python)
