@@ -3,7 +3,7 @@ name: Snyk Security latest from marketplace
 on:
   push:
     tags:
-      - "v*"   # triggers on any tag starting with 'v', e.g., v1.0.0, v2.1.0-preprod
+      - "v*"
 
 permissions:
   contents: read
@@ -36,10 +36,10 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk code test . \
-          --project-name="SAST SCANS" \
           --report \
+          --project-name=${{ github.base_ref }} \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.ref_name }}
+          --target-reference=${{ github.base_ref }}
 
       # --- Snyk Open Source (Python deps) ---
       - name: Snyk Open Source monitor
@@ -47,8 +47,8 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk monitor \
           --all-projects \
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference="Dependency scanning"
+          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
+          --target-reference=${{ github.base_ref }}
 
 
       # --- Snyk IaC (Infrastructure as Code) ---
@@ -58,4 +58,4 @@ jobs:
         run: snyk iac test . \
           --report \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.ref_name }} || true
+          --target-reference=${{ github.base_ref }} || true
