@@ -57,10 +57,11 @@ jobs:
       # --- Snyk IaC (Infrastructure as Code) ---
       - name: Snyk IaC test and report
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
         run: |
           REF_NAME=${GITHUB_HEAD_REF}
           snyk iac test . \
             --report \
+            --project-name=${REF_NAME} \
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
             --target-reference=${REF_NAME} || true
