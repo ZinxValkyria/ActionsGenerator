@@ -59,6 +59,5 @@ jobs:
         run: |
           snyk iac test . \
             --report \
-            --project-name=${{ github.base_ref }} \
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
             --target-reference=${{ github.base_ref }} || true
