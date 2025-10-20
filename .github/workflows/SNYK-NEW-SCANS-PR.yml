@@ -35,28 +35,33 @@ jobs:
       - name: Snyk Code test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code test . \
-          --report \
-          --project-name=${{ github.base_ref }} \
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.base_ref }}
+        run: |
+          REF_NAME=${GITHUB_HEAD_REF}
+          snyk code test . \
+            --report \
+            --project-name=${REF_NAME} \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${REF_NAME}
 
       # --- Snyk Open Source (Python deps) ---
       - name: Snyk Open Source monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk monitor \
-          --project-name=${{ github.base_ref }} \
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.base_ref }}
-
+        run: |
+          REF_NAME=${GITHUB_HEAD_REF}
+          snyk monitor \
+            --project-name=${REF_NAME} \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${REF_NAME}
 
       # --- Snyk IaC (Infrastructure as Code) ---
       - name: Snyk IaC test and report
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk iac test . \
-          --report \
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --project-name=${{ github.base_ref }} \
-          --target-reference=${{ github.base_ref }} || true
+        run: |
+          REF_NAME=${GITHUB_HEAD_REF}
+          snyk iac test . \
+            --report \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --project-name=${REF_NAME} \
+            --target-reference=${REF_NAME} || true
