@@ -63,5 +63,4 @@ jobs:
           snyk iac test . \
             --report \
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-            --project-name=${REF_NAME} \
             --target-reference=${REF_NAME} || true
