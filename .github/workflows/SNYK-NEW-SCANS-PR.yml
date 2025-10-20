@@ -48,7 +48,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           snyk monitor \
-            --file=requirements.txt \
+            --project-name="requirements.txt" \
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
             --target-reference=${{ github.base_ref }}
 
