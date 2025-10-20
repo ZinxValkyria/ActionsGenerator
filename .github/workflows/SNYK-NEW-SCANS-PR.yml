@@ -2,7 +2,8 @@ name: Snyk Security latest from marketplace
 
 on:
   pull_request:
-    branches: ["rc/*"]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
 
 permissions:
   contents: read
