@@ -2,7 +2,8 @@ name: Snyk Security latest from marketplace
 
 on:
   pull_request:
-    branches: ["rc/*"]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -34,27 +35,34 @@ jobs:
       - name: Snyk Code test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code test . \
-          --report \
-          --project-name=${{ github.base_ref }} \
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.base_ref }}
+        run: |
+          snyk code test . \
+            --report \
+            --project-name=${{ github.base_ref }} \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.base_ref }}
 
       # --- Snyk Open Source (Python deps) ---
       - name: Snyk Open Source monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk monitor \
-          --all-projects \
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }}
-          --target-reference=${{ github.base_ref }}
-
+        run: |
+          snyk monitor \
+            --project-name="requirements.txt" \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.base_ref }}
 
       # --- Snyk IaC (Infrastructure as Code) ---
       - name: Snyk IaC test and report
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk iac test . \
-          --report \
-          --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-          --target-reference=${{ github.base_ref }} || true
+        run: |
+          snyk iac test . \
+            --report \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.base_ref }} || true
+
+      - name: Snyk Dockerfile test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test python:3.11 --file=dockerfile --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --severity-threshold=high
