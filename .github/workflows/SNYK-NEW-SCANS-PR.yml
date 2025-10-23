@@ -65,4 +65,4 @@ jobs:
       - name: Snyk Dockerfile test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test --file=Dockerfile --org=${{ secrets.SNYK_ORG_ID }} --severity-threshold=high
+        run: snyk container test --file=Dockerfile --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --severity-threshold=high
