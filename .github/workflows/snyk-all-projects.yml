@@ -38,5 +38,4 @@ jobs:
           snyk test \
             --all-projects \
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
-            --project-name="multi-project-scan" \
             --target-reference=${{ github.ref_name }} || true
