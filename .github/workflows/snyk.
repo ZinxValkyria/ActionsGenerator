@@ -1,0 +1,29 @@
+name: Delta-like PR Check (Personal)
+
+on: [pull_request]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install Snyk & Filter
+        run: |
+          npm install -g snyk snyk-filter
+      
+      - name: Run Snyk Scan (High/Critical Only)
+        run: |
+          snyk test \
+            --severity-threshold=high \
+            --json --print-deps > current-scan.json || true
+          
+          # Pass through snyk-filter to ensure only high/critical fail the build
+          cat current-scan.json | snyk-filter -f filter-rules.yml
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
