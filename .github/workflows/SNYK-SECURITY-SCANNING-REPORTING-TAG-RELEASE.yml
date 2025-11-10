@@ -59,3 +59,8 @@ jobs:
           --report \
           --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
           --target-reference=${{ github.ref_name }} || true
+
+      - name: Snyk Dockerfile test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test --file=Dockerfile --org=${{ secrets.SNYK_ORG_ID }} --severity-threshold=high
