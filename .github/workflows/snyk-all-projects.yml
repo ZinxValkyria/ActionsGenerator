@@ -1,0 +1,47 @@
+name: Snyk Dependency Scan (All Projects)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  snyk-scan:
+    name: Run Snyk scan on all projects
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies if requirements.txt exists
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Snyk dependency test for all projects
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          echo "🔍 Running Snyk test for all detected projects..."
+          snyk test \
+            --all-projects \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --target-reference=${{ github.ref_name }} || true

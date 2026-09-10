@@ -3,19 +3,21 @@ This module initializes and configures a Flask web application.
 It serves HTML pages and provides an endpoint to fetch YAML script files from S3.
 """
 
+import logging
 import os
+
+import yaml
+from botocore.exceptions import ClientError
 from flask import Flask, render_template, Response, abort, jsonify, request
 import boto3
-# import logging
-# log = logging.getLogger()
-# log.info("my log message here")
-# log.debug("my debug message here")
-# log.fatal("my fatal message here")  # Flask app initialization
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__, template_folder="templatesv2")
 
 # AWS S3 configuration
-S3_BUCKET_NAME = "actions-template-bucket"
-s3_client = boto3.client("s3")  # Ensure AWS credentials and region are configured
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME", "actions-template-bucket")
+AWS_REGION = os.getenv("AWS_REGION", "eu-west-1")
+s3_client = boto3.client("s3", region_name=AWS_REGION)  # Ensure AWS credentials and region are configured
 
 
 # Route for the homepage
@@ -138,10 +140,14 @@ def fetch_yaml(service, filename):
             mimetype="application/x-yaml",
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
-    except s3_client.exceptions.NoSuchKey:
-        return abort(404, description=f"File not found in S3: {key}")
-    except Exception as e:
-        return abort(500, description=str(e))
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") in {"NoSuchKey", "404"}:
+            return abort(404, description="Template not found")
+        logger.exception("S3 failed while fetching %s", key)
+        return abort(502, description="Unable to retrieve template")
+    except Exception:
+        logger.exception("Unexpected error while fetching %s", key)
+        return abort(500, description="Unable to retrieve template")
 
 
 # Route to dynamically generate YAML based on a template from S3
@@ -163,7 +169,17 @@ def generate_yaml():
         uses_action = request.form.get('uses_action')
         run_command = request.form.get('run')
 
-        # Prepare the trigger events string
+        required_fields = {
+            "workflow_name": workflow_name,
+            "job_name": job_name,
+            "runs_on": runs_on,
+        }
+        missing = [name for name, value in required_fields.items() if not value or not value.strip()]
+        if missing:
+            return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
+        if not triggers:
+            return jsonify({"error": "Select at least one trigger"}), 400
+
         trigger_events = "\n  ".join([f"{trigger}:" for trigger in triggers])
 
         # Fetch the base YAML from S3
@@ -180,13 +196,22 @@ def generate_yaml():
             .replace("{{uses_action}}", uses_action) \
             .replace("{{run_command}}", run_command)
 
-        # Return the YAML content as JSON
+        try:
+            parsed_yaml = yaml.safe_load(yaml_content)
+            yaml_content = yaml.safe_dump(parsed_yaml, sort_keys=False)
+        except yaml.YAMLError:
+            return jsonify({"error": "The supplied values produced invalid YAML"}), 400
+
         return jsonify({"yaml": yaml_content})
 
-    except s3_client.exceptions.NoSuchKey:
-        return abort(404, description=f"Base YAML file not found in S3: {key}")
-    except Exception as e:
-        return abort(500, description=str(e))
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") in {"NoSuchKey", "404"}:
+            return abort(404, description="Base template not found")
+        logger.exception("S3 failed while generating YAML")
+        return abort(502, description="Unable to retrieve the base template")
+    except Exception:
+        logger.exception("Unexpected YAML generation error")
+        return abort(500, description="Unable to generate workflow")
 
 
 # Start the Flask app

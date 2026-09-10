@@ -1,34 +1,24 @@
-# Use the official Python image from the Docker Hub
-FROM python:3.11
+FROM python:3.11-slim
 
-# Set the working directory in the container
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    FLASK_APP=app.py \
+    NEW_RELIC_CONFIG_FILE=/app/newrelic.ini
+
 WORKDIR /app
 
-# Copy the requirements file into the container at /app
+RUN addgroup --system app && adduser --system --ingroup app app
+
 COPY requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY --chown=app:app . .
+USER app
 
-# Copy the rest of the application code into the container
-COPY . .
+EXPOSE 5000
 
-# COPY .env /app/.env
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/')" || exit 1
 
-ENV DOTENV_PATH=/app/.env
-
-# Copy the New Relic configuration file
- COPY newrelic.ini /app/newrelic.ini
-
-# Expose port 5000 for the Flask application
-EXPOSE 5000 443
-
-# Set environment variables for Flask
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=5000
-ENV NEW_RELIC_CONFIG_FILE=/app/newrelic.ini
-ENV DOTENV_PATH=/app/.env
-
-# Run the Flask application using New Relic
-CMD ["newrelic-admin", "run-program", "flask", "run"]
+CMD ["sh", "-c", "if [ -f \"$NEW_RELIC_CONFIG_FILE\" ]; then exec newrelic-admin run-program gunicorn --bind 0.0.0.0:5000 --workers 2 --threads 4 app:app; else exec gunicorn --bind 0.0.0.0:5000 --workers 2 --threads 4 app:app; fi"]

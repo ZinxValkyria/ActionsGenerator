@@ -170,3 +170,9 @@ cython_debug/
 #.idea/
 
 .terraform
+
+# Terraform local state and sensitive variable files
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example

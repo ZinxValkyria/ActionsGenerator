@@ -1,7 +1,7 @@
-Flask
-PyYAML
-pytest
-newrelic
-flask
-boto3
-python-dotenv
+Flask>=3.1,<4
+PyYAML>=6.0,<7
+boto3>=1.35,<2
+gunicorn>=23,<24
+newrelic>=10,<12
+python-dotenv>=1.0,<2
+pytest>=8,<9
