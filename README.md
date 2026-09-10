@@ -28,7 +28,7 @@ The application will save users time and effort by simplifying the creation and 
 
 - User-friendly interface for creating GitHub Actions YAML files.
 - Ability to customize various elements of the workflow.
-- Scalable infrastructure managed by tff.
+- Scalable infrastructure managed by Terraform.
 - Integrated monitoring and alerting for performance and reliability.
 
 ## Technologies
@@ -37,4 +37,31 @@ The application will save users time and effort by simplifying the creation and 
 - **Backend**: Flask server (python)
 - **Infrastructure**: Terraform
 - **Monitoring**: New Relic
-- **Database**: DynamoDB for state-locking
+- **Terraform state**: S3 backend with DynamoDB state locking
+
+
+## Local development
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+export S3_BUCKET_NAME=actions-template-bucket
+export AWS_REGION=eu-west-1
+flask --app app run
+```
+
+AWS credentials should be supplied through your normal AWS credential chain. Do not commit credentials, Terraform state, `.tfvars`, `.env`, or `newrelic.ini`.
+
+## Production deployment
+
+The production GitHub Actions workflow uses GitHub OIDC. Configure an `AWS_ROLE_ARN` repository secret containing a role that trusts this repository's GitHub OIDC subject. Long-lived `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` secrets are no longer required by this workflow.
+
+Terraform deployments should be protected with a GitHub Environment approval rule before this repository is treated as production. The NAT gateway and other AWS resources can incur ongoing charges.
+
+## Configuration
+
+- `S3_BUCKET_NAME`: bucket containing YAML templates
+- `AWS_REGION`: AWS region; defaults to `eu-west-1`
+- `AWS_ROLE_ARN`: GitHub Actions secret used for OIDC deployment
+- `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `NEW_RELIC_LICENSE_KEY`: deployment secrets
