@@ -7,9 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+  contents: read
 
 env:
   S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
@@ -20,11 +18,11 @@ jobs:
     name: Run Snyk to check for Python vulnerabilities
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install Requirements
         run: pip install -r requirements.txt
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/python@master
+        uses: snyk/actions/python@14818c4695ecc4045f33c9cee9e795a788711ca4
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -33,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -53,13 +51,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
 
       - name: Install dependencies
@@ -78,13 +75,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
 
       - name: Install dependencies
@@ -106,21 +102,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-         terraform_version: "1.5.7"
+         terraform_version: "1.9.6"
       - name: Terraform Init
         run: terraform init
         working-directory: terraform
 
       - name: Run terraform fmt to check formatting
-        run: terraform fmt
+        run: terraform fmt -check -recursive
         working-directory: terraform
 
       - name: Run terraform validate to check syntax
@@ -135,13 +130,6 @@ jobs:
         with:
           path: terraform/
 
-  # Job to create .env file (to be used in later jobs)
-  env_creation:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create .env file
-        run: echo "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}" >> .env
-
   # Sixth Job: Build and Push Docker Image
   build_and_push:
     name: Build and Push Docker Image
@@ -151,13 +139,13 @@ jobs:
       IMAGE_TAG: ${{ steps.docker_tag.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Create newrelic.ini
         run: echo "${{ secrets.NEW_RELIC_CONFIG2 }}" > newrelic.ini
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_API_KEY }}
@@ -166,8 +154,8 @@ jobs:
         id: docker_tag
         run: |
           IMAGE_TAG="${GITHUB_SHA::7}"
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-          echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Build Docker Image
         env:
@@ -183,36 +171,33 @@ jobs:
     name: Terraform Apply
     runs-on: ubuntu-latest
     needs: build_and_push
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: terraform
+    env:
+      TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      TF_VAR_new_relic_license_key: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
 
-      - name: Populate secrets.auto.tfvars
-        run: |
-          cat <<EOF > secrets.auto.tfvars
-          cloudflare_api_token = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
-          cloudflare_zone_id = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
-          new_relic_license_key = "${{ secrets.NEW_RELIC_LICENSE_KEY }}"
-          EOF
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-         terraform_version: "1.5.7"
+         terraform_version: "1.9.6"
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Apply
         run: terraform apply -var="image_tag=${{ needs.build_and_push.outputs.IMAGE_TAG }}" --auto-approve
 
-      - name: Cleanup Secrets
-        run: rm -f secrets.auto.tfvars
