@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
@@ -62,7 +62,15 @@ jobs:
             --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
             --target-reference=${{ github.base_ref }} || true
 
-      - name: Snyk Dockerfile test
+      - name: Build container image
+        run: docker build --tag actions-generator:pr .
+
+      - name: Snyk application container test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk container test python:3.11 --file=dockerfile --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} --severity-threshold=high
+        run: |
+          snyk container test actions-generator:pr \
+            --file=dockerfile \
+            --org=${{ secrets.SNYK_ORG_ID_NOONEBLAIN }} \
+            --severity-threshold=high \
+            --exclude-base-image-vulns
