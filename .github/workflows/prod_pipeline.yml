@@ -49,6 +49,9 @@ jobs:
   # Third Job: Test S3 Connection
   Test_S3_Connection:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -73,6 +76,9 @@ jobs:
   # Fourth Job: Test if file exists in S3
   Test_file_exists:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -98,6 +104,9 @@ jobs:
   snyk_infra:
     name: Run Snyk to scan Terraform files
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     needs: [Test_file_exists, Test_S3_Connection, End_to_End_Tests_Route_Testing, python_scan_1]
     steps:
       - uses: actions/checkout@v4
